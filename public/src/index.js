@@ -1,3 +1,5 @@
+//BUSCA! //CONTINUAR
+
 /*
 FUNCIONALIDADES ADICIONALES ESPERADAS:
 -TIENE QUE TENER UNA PANTALLA PRINCIPAL PARA CLICKEAR EN "EMPEZAR"
@@ -16,23 +18,66 @@ Y EL LOOP TAMBIÉN TIENE QUE SER CADA VEZ MÁS RÁPIDO (INTERVALO--)
 LLEGA A LA CABEZA TINTINEA Y SE ROMPE? UH FLASH QUE EXPLOTE EN PEDAZOS
 */
 
+/*
+CANCIONES POR SI PINTA PONER SONIDO:
+(averiguar el tema de los derechos de autor)
+
+fuente: spotify
+-----------------------
+nombre: Symbolus
+artista: Zef
+--
+
+
+-----------------------
 
 
 
-
-
+*/
 
 //constante de las dimensiones del canvas (ojo porque también están definidas en el html)
 //ya fue las aplico desde acá y listo
 const ANCHO_ALTO_VIBORITA = 10; //tamaño de la cabeza de la viborita ojo ahí podés hacer flashereadas, cambiando esto.
 const DIMENSION_CANVAS = 200; //TIENE QUE SER UN MÚLTIPLO DEL TAMAÑO DE LA VIBORITA SI NO VAS A TENER QUILOMBO
-const INTERVALO = 90; //El intervalo en que se llama a la función
+
+const INTERVALO_MAX = 90; //El intervalo por default y también el valor más algo (velocidad más lenta)
+let intervalo = 90; //El intervalo en que se llama a la función
+const INTERVALO_DISMINUCION = 10; //El valor que se le resta a intervalo en cada estomagoLleno
+const INTERVALO_MIN = 10; //Intervalo mínimo, pasando este límite aumenta el nivel y se restura el intervalo al valor inicial
+
+//el nivel puede aumentar cuando la velocidad llega a cierto punto (el intervalo llega a menos de tanto)
+//cuando aumenta el nivel la velocidad baja al valor inicial y el crecimiento se tiene que acelerar (+2, +3)
+//OJO el crecimiento puede ser el mismo nivel! +1 en el nivel 1, +2 en el nivel 2, etc
+
+//Un contador para saber cuántas comidas comió la serpiente
+let porciones = 0;
+
+//y cada cierto número de comidas (porciones = estomagoLleno) aumentar la velocidad (disminuir intervalo)
+let estomagoLleno = 5;
+
+//Valores que salen en la UI---------------------------------------------------------
+
+//El valor de nivel es también el que se suma en el crecimiento,
+//así a medida que sube el nivel crece más rápido
+let nivel = 1;
+//puntaje total
+let puntaje = 0;
+
+//Los puntos que aumenta el puntaje cada vez que la serpiente come una comida
+let puntosPorComida = 10;
+//Los puntos por avanzar de nivel
+let puntosPorNivel = 100;
+//Los puntos deberían ser más grandes a medida que se sube de nivel porque no es lo mismo
+//comer en el nivel uno que comer en el nivel 100 ---AUNQUE ESTO PODRÍA HACER PENSAR QUE ALGUIEN QUE HIZO MIL PUNTOS MÁS QUE OTRO LE RE GANÓ Y CAPAZ SÓLO COMIÓ UNA SOLA COMIDA MÁS. MEJOR LO DEJAMOS CONSTANTE
+
+//Valores que salen en la UI---------------------------------------------------------
+
 const ELEMENTOS = {
   VIBORITA: {
     color: "green",
   },
   COMIDA: {
-    color: "yellow",
+    color: "white",
   },
 };
 
@@ -69,21 +114,50 @@ let DESPLAZAMIENTO = ANCHO_ALTO_VIBORITA;
 
 //Una función para randomizar la posición y dirección oficiales ---'oficiales' le mandó
 
-let cualquierLado = (arrNoPermitidos = []) => {
-  //console.log(arrNoPermitidos)
-  let todasLasDires = Object.keys(DIRECCION); //Un array con los valores del objeto DIRECCION para poder sacar uno random por el índice
-  let diresPermitidas;
-  if (arrNoPermitidos.length) {
-    //Si se le pasa un array con algún elemento no permitido lo filtra
-    diresPermitidas = todasLasDires.filter(
-      (dire) => !arrNoPermitidos.includes(dire)
-    ); //Filtra arrDires por los valores que no estén incluidos en la lista de nopermitidos
-  } else {
-    diresPermitidas = todasLasDires;
+//Función para randomizar la posición por separado
+
+let cualquierPosicion = () => {
+
+}
+
+let cualquierLado = (diresNoPermitidas = [], posNoPermitdas = [], dirLista, posLista) => {
+  
+  let direRandom; 
+
+  if(!dirLista) {
+
+    let todasLasDires = Object.keys(DIRECCION); //Un array con los valores del objeto DIRECCION para poder sacar uno random por el índice
+    let diresPermitidas;
+    if (diresNoPermitidas.length) {
+      //Si se le pasa un array con algún elemento no permitido lo filtra
+      diresPermitidas = todasLasDires.filter(
+        (dire) => !diresNoPermitidas.includes(dire)
+      ); //Filtra arrDires por los valores que no estén incluidos en la lista de nopermitidos
+    } else {
+      diresPermitidas = todasLasDires;
+    }
+  
+    direRandom =
+      diresPermitidas[parseInt(Math.random() * (diresPermitidas.length - 1))]; //Es el último índice
   }
 
-  let direRandom =
-    diresPermitidas[parseInt(Math.random() * (diresPermitidas.length - 1))]; //Es el último índice
+
+  //Calculando una posición para la comida que no puede ser sobre la viborita
+  //Se calcula la cantidad de posiciones posibles para utilizar al reposicionar la comida
+ 
+  const TOTAL_POSICIONES = Math.pow(DIMENSION_CANVAS / ANCHO_ALTO_VIBORITA, 2);
+
+  if (posNoPermitdas.length) {
+    //Hay lugar?
+    if (posNoPermitdas.length === TOTAL_POSICIONES) {
+      subirNivel();
+    } else {
+      //Hay que ver las posiciones prohibidas
+      
+    //CONTINUAR     
+    }
+  }
+
   return {
     posicion: {
       x:
@@ -94,8 +168,8 @@ let cualquierLado = (arrNoPermitidos = []) => {
         DESPLAZAMIENTO,
     },
     direccion: {
-      x: DIRECCION[direRandom][0],
-      y: DIRECCION[direRandom][1],
+      x: dirLista?.x || DIRECCION[direRandom][0],
+      y: dirLista?.y || DIRECCION[direRandom][1],
     },
   };
 };
@@ -169,8 +243,6 @@ let controles = {
   crecimiento: 0,
 };
 
-
-
 let dibujarElemento = (elemento, x, y) => {
   //Creando el elemento (viborita o comida)
   //Se indica el color según el objeto que se vaya a crear (verde es la viborita y amarillo es la comida)
@@ -202,14 +274,35 @@ let choco = () => {
   const head = controles.bicho[0];
 
   //Chequea si algun nodo aparte del head tiene la misma posición del head y devuelve true si encuentra uno
-  let seMordioLaCola = controles.bicho.some((nodo, index)=> index > 0 && nodo.x === head.x && nodo.y === head.y)
+  let seMordioLaCola = controles.bicho.some(
+    (nodo, index) => index > 0 && nodo.x === head.x && nodo.y === head.y
+  );
 
   //Si x < 0 se fue para la izquiera de la pantalla
   //Si x >= DIM entonces ya se fue porque su costado izquirdo empieza donde termina el canvas
-  let seFueDelCanvas = head.x < 0 || head.x >= DIMENSION_CANVAS || head.y < 0 || head.y >= DIMENSION_CANVAS;
-  
-  return seMordioLaCola || seFueDelCanvas
-}
+  let seFueDelCanvas =
+    head.x < 0 ||
+    head.x >= DIMENSION_CANVAS ||
+    head.y < 0 ||
+    head.y >= DIMENSION_CANVAS;
+
+  return seMordioLaCola || seFueDelCanvas;
+};
+
+let subirNivel = () => {
+  nivel++;
+  puntaje += puntosPorNivel;
+  controles.bicho.length = 1;
+  intervalo = INTERVALO_MAX;
+};
+
+let subirVelocidad = () => {
+  intervalo -= INTERVALO_DISMINUCION;
+  porciones = 0;
+  if (intervalo === INTERVALO_MIN) {
+    subirNivel();
+  }
+};
 
 //Seteando el loop
 
@@ -259,7 +352,7 @@ let loop = () => {
   //Chequea si chocó y cambia el estado de jugando
   if (choco()) {
     controles.jugando = false;
-    perdiste()
+    perdiste();
   }
 
   if (niamniam) {
@@ -281,7 +374,7 @@ let loop = () => {
   //Una razón por la que se esté poniendo muchos setTimeOut y no un solo setInterval es
   //porque de esa manera se puede modificar INTERVALO para aumentar la dificultad (?)
   //También podría aumentar la dificultad modificando el DESPLAZAMIENTO?...
-  setTimeout(loop, INTERVALO);
+  setTimeout(loop, intervalo);
 };
 
 //Capturando el teclado
@@ -311,15 +404,15 @@ document.onkeydown = (e) => {
 
 const iniciar = () => {
   controles = valorInicial();
-}
+};
 
 const perdiste = () => {
-    //Animar como que pierde
-    //popup para ver si quiere jugar de vuelta? si quiere iniciar(), si no pantallita principal :P
-    iniciar();
-}
+  //Animar como que pierde
+  //popup para ver si quiere jugar de vuelta? si quiere iniciar(), si no pantallita principal :P
+  iniciar();
+};
 
 window.onload = () => {
-  iniciar()
+  iniciar();
   loop();
 };
