@@ -19,4 +19,9 @@ body {
 canvas {
     border: solid 6px white;
     background: cornflowerblue;
+    position: relative;
+}
+
+.tit {
+    z-index: 20;
 }
