@@ -672,7 +672,7 @@ document.onkeydown = (e) => {
   //console.log(e.key);
 
   //no entra si la tecla no es de dirección
-  const esDeDireccion = !!DIRECCION[e.code]; //bang bang! estás liquidado
+  const esDeDireccion = !!DIRECCION[e.code]; //bang bang! estás liquidado ah re
 
   if (esDeDireccion) {
     //no entra si la dirección es la contraria a la actual (la viborita no puede volver sobre sí misma)
@@ -687,6 +687,24 @@ document.onkeydown = (e) => {
       controles.direccion.x = x;
       controles.direccion.y = y;
     }
+    //Modifica los estilos del teclado virtual para reflejar el estado el teclado físico
+    switch (e.code) {
+      case 'ArrowUp': //arriba
+      case 'KeyW': //arriba
+        botonArriba.firstElementChild.classList.add('activo');
+        break;
+      case 'ArrowDown': //abajo
+      case 'KeyS': //abajo
+        botonAbajo.firstElementChild.classList.add('activo');
+        break;
+      case 'ArrowLeft': //izquierda
+      case 'KeyA': //izquierda
+        botonIzquierda.firstElementChild.classList.add('activo');
+        break;
+      case 'ArrowRight': //derecha
+      case 'KeyD': //derecha
+        botonDerecha.firstElementChild.classList.add('activo');
+    }
   }
 
   //Si es la tecla espaciadora le pone turbo
@@ -694,8 +712,9 @@ document.onkeydown = (e) => {
   if(esTurbo) {
     turbo = true;
     //console.log('esturbo', e.code, 'turbo: ',turbo)
+    botonTurbo.firstElementChild.classList.add('activo');
   }
-
+  
   //Si es escape le pone o saca pausa
   let esPausa = OTRAS_TECLAS[e.code] === 'pausa';
   if(esPausa) {
@@ -703,8 +722,8 @@ document.onkeydown = (e) => {
     controles.pausa = !controles.pausa;
     //console.log('esturbo', e.code, 'turbo: ',turbo)
   }
-
-
+  
+  
 };
 
 document.onkeyup = (e) => {
@@ -712,8 +731,30 @@ document.onkeyup = (e) => {
   const esTurbo = OTRAS_TECLAS[e.code] === 'turbo';
   if(esTurbo) {
     turbo = false;
+    botonTurbo.firstElementChild.classList.remove('activo');
     //console.log('esturbo', e.code, 'turbo: ',turbo)
   }
+
+  //Modifica los estilos del teclado virtual para reflejar el estado el teclado físico
+  switch (e.code) {
+    case 'ArrowUp': //arriba
+    case 'KeyW': //arriba
+      botonArriba.firstElementChild.classList.remove('activo');
+      break;
+    case 'ArrowDown': //abajo
+    case 'KeyS': //abajo
+      botonAbajo.firstElementChild.classList.remove('activo');
+      break;
+    case 'ArrowLeft': //izquierda
+    case 'KeyA': //izquierda
+      botonIzquierda.firstElementChild.classList.remove('activo');
+      break;
+    case 'ArrowRight': //derecha
+    case 'KeyD': //derecha
+      botonDerecha.firstElementChild.classList.remove('activo');
+  }
+
+
 };
 
 

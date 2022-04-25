@@ -11,10 +11,12 @@
 
 body {
     background-color: #666;
+    position: relative;
     text-align: center;
-    padding: 30px 0 0 0;
+    padding: 10px 0 0 0;
     font-family: silkscreen, sans-serif;
     height: 100vh;
+    max-height: 100vh;
 }
 
 canvas {
@@ -23,7 +25,9 @@ canvas {
     background: cornflowerblue;
     position: relative;
     width: 50%;
+    height: 50%;
     min-width: 300px;
+    min-height: 300px;
 }
 
 .indicaciones, .tabla-container {
@@ -33,7 +37,7 @@ canvas {
 
 .controles-titulo, .niveles-titulo,.control, .nivel, .puntaje {
     width: 100%;
-    margin-top: 20px;
+    margin-top: 5%;
     font-size: 1.5em;
 }
 
@@ -44,8 +48,8 @@ canvas {
 
 .stats {
     
-    font-size: 1.7em;
-    padding-block: 10px;
+    font-size: 1.2em;
+    padding-block: 5px;
 }
 
 
@@ -56,7 +60,6 @@ canvas {
 
     display: flex;
     justify-content: center;
-    height: 200px;
     
 }
 
@@ -154,7 +157,7 @@ canvas {
 /* BOTON TURBO */
 
 .boton-turbo {
-    *margin-top: 20px;
+    margin-top: 5px;
     /* ES UN GRID DE 18x9 */
     --pixel-bt : calc(100% / 18);
     aspect-ratio: 2 / 1;
@@ -221,6 +224,10 @@ canvas {
     left: calc(var(--pixel-bt) * 4.5);
 }
 
+.activo {
+    background-color: #666;
+}
+
 .boton-direccion:active > .bd-fondo {
     background-color: #666;
 }
@@ -232,6 +239,22 @@ canvas {
 /* BOTON TURBO */
 /*-----------------ESTILOS DE LOS BOTONES-------------------*/
 
+/* ---------------------PANTALLAS DE INICIO - LOGIN - HIGHSCORE - GAMEOVER --------------------- */
+
+.pantalla-inicio, .pantalla-login, .pantalla-gameover, .pantalla-highscore {
+    display: none;
+}
+
+.pantalla-inicio {
+
+}
+
+.popup-inicio {
+
+}
+
+/* ---------------------PANTALLAS DE INICIO - LOGIN - HIGHSCORE - GAMEOVER --------------------- */
+
 /* MEDIA QUERYS */
 
 @media screen and (min-width: 1024px) {
@@ -239,12 +262,13 @@ canvas {
             flex-direction: row;
             width: 30%;
             height: 140px;
-            padding-block: 10px;
+            padding-top: 5px;
         }
 
         canvas {
-            max-width: 70vh;
-            max-height: 70vh;
+            max-width: 30%;
+            max-height: 30%;
+            
         }
 
 
@@ -269,7 +293,8 @@ canvas {
             flex-direction: column;
             align-items: flex-start;
             width: 25%;
-            max-height: 70vh;
+            max-height: 30%;
+            max-width: 30%;
             overflow: auto;
         }
 
