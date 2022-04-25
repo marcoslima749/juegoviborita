@@ -37,6 +37,10 @@ canvas {
     font-size: 1.5em;
 }
 
+.control, .nivel {
+    font-size: 1em;
+}
+
 
 .stats {
     
@@ -217,12 +221,20 @@ canvas {
     left: calc(var(--pixel-bt) * 4.5);
 }
 
+.boton-direccion:active > .bd-fondo {
+    background-color: #666;
+}
+
+.boton-turbo:active > .bt-fondo {
+    background-color: #666;
+}
+
 /* BOTON TURBO */
 /*-----------------ESTILOS DE LOS BOTONES-------------------*/
 
 /* MEDIA QUERYS */
 
-@media screen and (min-width: 1200px) {
+@media screen and (min-width: 1024px) {
         .botonera {
             flex-direction: row;
             width: 30%;
@@ -232,7 +244,10 @@ canvas {
 
         canvas {
             max-width: 70vh;
+            max-height: 70vh;
         }
+
+
 
         .stats-container {
             display: flex;
@@ -254,6 +269,8 @@ canvas {
             flex-direction: column;
             align-items: flex-start;
             width: 25%;
+            max-height: 70vh;
+            overflow: auto;
         }
 
         .controles, .niveles, .tabla {
@@ -267,10 +284,8 @@ canvas {
         .panel-central {
             display: flex;
             justify-content: space-evenly;
-            width: 90%;
+            width: 100%;
             margin-inline: auto;
-
-
         }
 }
 

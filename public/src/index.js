@@ -119,6 +119,71 @@ let nivelValor = document.getElementById("nivelValor");
 let puntajeValor = document.getElementById("scoreValor");
 let vidaValor = document.getElementById('vidaValor');
 
+//Botones
+
+let botonArriba = document.getElementById('botonArriba');
+let botonIzquierda = document.getElementById('botonIzquierda');
+let botonAbajo = document.getElementById('botonAbajo');
+let botonDerecha = document.getElementById('botonDerecha');
+
+let botonTurbo = document.getElementById('botonTurbo');
+let botonPausa; //HACERLO Y CAPTURAR
+
+//Aplicando los event listeners
+
+botonArriba.onclick = (e)=> {
+  e.preventDefault()
+  document.dispatchEvent(new KeyboardEvent('keydown', {
+    "code": "ArrowUp"
+  }));
+};
+
+botonIzquierda.onclick = (e)=> {
+  e.preventDefault()
+  document.dispatchEvent(new KeyboardEvent('keydown', {
+    "code": "ArrowLeft"
+  }));
+};
+
+botonAbajo.onclick = (e)=> {
+  e.preventDefault()
+  document.dispatchEvent(new KeyboardEvent('keydown', {
+    "code": "ArrowDown"
+  }));
+};
+
+
+botonDerecha.onclick = (e)=> {
+  e.preventDefault()
+  document.dispatchEvent(new KeyboardEvent('keydown', {
+    "code": "ArrowRight"
+  }));
+};
+
+botonTurbo.onclick = (e)=> {
+  e.preventDefault()
+}
+
+botonTurbo.onmousedown = (e)=> {
+  e.preventDefault()
+  document.dispatchEvent(new KeyboardEvent('keydown', {
+    "code": "Space"
+  }));
+};
+
+botonTurbo.onmouseup = (e)=> {
+  e.preventDefault()
+  document.dispatchEvent(new KeyboardEvent('keyup', {
+    "code": "Space"
+  }));
+};
+
+
+
+
+
+
+
 //Aplicando el tamaño al canvas
 papel.width = DIMENSION_CANVAS;
 papel.height = DIMENSION_CANVAS;
