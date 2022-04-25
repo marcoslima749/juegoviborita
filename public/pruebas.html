@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .botonera {
+            background-color: blueviolet;
+            width: 80%;
+            height: 80%;
+        }
+        .boton {
+            text-decoration: none;
+            font-family: inherit;
+            color: inherit;
+        }
+
+        .boton-direccion {
+            /* Es un grid de 9x9 y todas las medidas parten de un número de --pixel's */
+            --pixel : calc(100% / 9);
+            aspect-ratio: 1 / 1;
+            width: 90px;
+            height: 90px;
+            display: block;
+            position: relative;
+            background-color: aquamarine;
+        }
+        .bd-fondo {
+            position: absolute;
+            top: var(--pixel);
+            left: var(--pixel);
+            width: calc(var(--pixel) * 7);
+            height: calc(var(--pixel) * 7);
+            background-color: grey;
+        }
+        .bd-borde-arriba,.bd-borde-abajo, .bd-borde-izquierda, .bd-borde-derecha {
+            background-color: black;
+            height: var(--pixel);
+            width: calc(var(--pixel) * 7);
+            position: absolute;
+            left: var(--pixel);
+        }
+        .bd-borde-abajo {
+            top: calc(var(--pixel) * 8);
+        }
+        .bd-borde-izquierda, .bd-borde-derecha {
+            height: calc(var(--pixel) * 7);
+            width: var(--pixel);
+            top: var(--pixel);
+            left: 0;
+        }
+        .bd-borde-derecha {
+            left: calc(var(--pixel) * 8);
+        }
+        .bd-flecha-uno, .bd-flecha-dos, .bd-flecha-tres {
+            background-color: black;
+            width: calc(var(--pixel) * 5);
+            height: var(--pixel);
+            position: absolute;
+            top: calc(var(--pixel) * 4);
+            left: calc(var(--pixel) * 2);
+        }
+        .bd-flecha-dos {
+            transform: rotate(90deg)
+        }
+        .bd-flecha-tres {
+            top: calc(var(--pixel) * 3);
+            width: calc(var(--pixel) * 3);
+            left: calc(var(--pixel) * 3);
+            
+        }
+
+        .boton-derecha {
+            transform: rotate(90deg);
+        }
+        .boton-abajo {
+            transform: rotate(270deg);
+        }
+        .boton-izquierda {
+            transform: rotate(90deg);
+        }
+
+        /* BOTON TURBO */
+        
+        .boton-turbo {
+            margin-top: 20px;
+            /* ES UN GRID DE 18x9 */
+            --pixel-bt : calc(100% / 18);
+            aspect-ratio: 2 / 1;
+            width: 400px;
+            height: 200px;
+            display: block;
+            position: relative;
+            background-color: aquamarine;
+        }
+        .bt-fondo {
+            position: absolute;
+            top: calc(var(--pixel-bt) * 2);
+            left: calc(var(--pixel-bt));
+            width: calc(var(--pixel-bt) * 16);
+            height: calc(var(--pixel-bt) * 14);
+            background-color: grey;
+        }
+        
+        .bt-borde-arriba, .bt-borde-abajo {
+            background-color: black;
+            height: calc(var(--pixel-bt) * 2);
+            width: calc(var(--pixel-bt) * 16);
+            position: absolute;
+            left: var(--pixel-bt);
+        }
+        .bt-borde-abajo {
+            position: absolute;
+            top: calc(var(--pixel-bt) * 16);
+        }
+
+        .bt-borde-izquierda, .bt-borde-derecha {
+            background-color: black;
+            height: calc(var(--pixel-bt) * 14);
+            width: var(--pixel-bt);
+            position: absolute;
+            top: calc(var(--pixel-bt)*2);
+        }
+        .bt-borde-derecha {
+            left: calc(var(--pixel-bt) * 17);
+        }
+
+        .bt-etiqueta-uno, .bt-etiqueta-dos, .bt-etiqueta-tres {
+            background-color: black;
+            height: calc(var(--pixel-bt) * 2);
+            width: var(--pixel-bt);
+            position: absolute;
+            top: calc(var(--pixel-bt) * 10);
+            left: calc(var(--pixel-bt) * 2);
+        }
+        
+        .bt-etiqueta-dos {
+            width: calc(var(--pixel-bt) * 14);
+            top: calc(var(--pixel-bt) * 12);
+        }
+
+        .bt-etiqueta-tres {
+            left: calc(var(--pixel-bt) * 15);
+        }
+
+        .etiqueta-turbo, .etiqueta-turbo:active, .etiqueta-turbo:link, .etiqueta-turbo:visited {
+            font-size: 20px;
+            position: absolute;
+            top: calc(var(--pixel-bt) * 6);
+            left: calc(var(--pixel-bt) * 6);
+        }
+        
+        /* BOTON TURBO */
+        </style>
+</head>
+<body>
+    <div class="botonera">
+    <a href="" class="boton boton-direccion">
+        <div class="bd-fondo"></div>
+        <div class="bd-borde-arriba"></div>
+        <div class="bd-borde-derecha"></div>
+        <div class="bd-borde-abajo"></div>
+        <div class="bd-borde-izquierda"></div>
+        <div class="bd-flecha-uno"></div>
+        <div class="bd-flecha-dos"></div>
+        <div class="bd-flecha-tres"></div>
+    </a>
+
+    <a href="" class="boton boton-direccion boton-derecha">
+        <div class="bd-fondo"></div>
+        <div class="bd-borde-arriba"></div>
+        <div class="bd-borde-derecha"></div>
+        <div class="bd-borde-abajo"></div>
+        <div class="bd-borde-izquierda"></div>
+        <div class="bd-flecha-uno"></div>
+        <div class="bd-flecha-dos"></div>
+        <div class="bd-flecha-tres"></div>
+    </a>
+    <a href="" class="boton boton-direccion boton-abajo">
+        <div class="bd-fondo"></div>
+        <div class="bd-borde-arriba"></div>
+        <div class="bd-borde-derecha"></div>
+        <div class="bd-borde-abajo"></div>
+        <div class="bd-borde-izquierda"></div>
+        <div class="bd-flecha-uno"></div>
+        <div class="bd-flecha-dos"></div>
+        <div class="bd-flecha-tres"></div>
+    </a>
+    <a href="" class="boton boton-direccion boton-izquierda">
+        <div class="bd-fondo"></div>
+        <div class="bd-borde-arriba"></div>
+        <div class="bd-borde-derecha"></div>
+        <div class="bd-borde-abajo"></div>
+        <div class="bd-borde-izquierda"></div>
+        <div class="bd-flecha-uno"></div>
+        <div class="bd-flecha-dos"></div>
+        <div class="bd-flecha-tres"></div>
+    </a>
+
+    <a href="" class="boton boton-turbo">
+        <div class="bt-fondo"></div>
+        <div class="bt-borde-arriba"></div>
+        <div class="bt-borde-derecha"></div>
+        <div class="bt-borde-abajo"></div>
+        <div class="bt-borde-izquierda"></div>
+        <div class="bt-etiqueta-uno"></div>
+        <div class="bt-etiqueta-dos"></div>
+        <div class="bt-etiqueta-tres"></div>
+        <p class="etiqueta-turbo">Turbo!</p>
+    </a>
+    </div>
+</body>
+</html>

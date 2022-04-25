@@ -12,16 +12,273 @@
 body {
     background-color: #666;
     text-align: center;
-    margin: 60px 0 0 0;
+    padding: 30px 0 0 0;
     font-family: silkscreen, sans-serif;
+    height: 100vh;
 }
 
 canvas {
+    aspect-ratio: 1 / 1;
     border: solid 6px white;
     background: cornflowerblue;
     position: relative;
+    width: 50%;
+    min-width: 300px;
 }
 
-.tit {
-    z-index: 20;
+.indicaciones, .tabla-container {
+    display: none;
+    padding-inline: 1%;
 }
+
+.controles-titulo, .niveles-titulo,.control, .nivel, .puntaje {
+    width: 100%;
+    margin-top: 20px;
+    font-size: 1.5em;
+}
+
+
+.stats {
+    
+    font-size: 1.7em;
+    padding-block: 10px;
+}
+
+
+
+/*-----------------ESTILOS DE LOS BOTONES-------------------*/
+
+.botones-container {
+
+    display: flex;
+    justify-content: center;
+    height: 200px;
+    
+}
+
+.botonera {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.boton {
+    text-decoration: none;
+    font-family: inherit;
+    color: inherit;
+}
+
+.direccion {
+    *border: solid 2px black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.direccion-izquierda-abajo-derecha {
+    display: flex;
+}
+
+
+.boton-direccion {
+    /* Es un grid de 9x9 y todas las medidas parten de un número de --pixel's */
+    --pixel : calc(100% / 9);
+    aspect-ratio: 1 / 1;
+    width: 60px;
+    height: 60px;
+    display: block;
+    position: relative;
+    *background-color: aquamarine;
+}
+.bd-fondo {
+    position: absolute;
+    top: var(--pixel);
+    left: var(--pixel);
+    width: calc(var(--pixel) * 7);
+    height: calc(var(--pixel) * 7);
+    background-color: grey;
+}
+.bd-borde-arriba,.bd-borde-abajo, .bd-borde-izquierda, .bd-borde-derecha {
+    background-color: black;
+    height: var(--pixel);
+    width: calc(var(--pixel) * 7);
+    position: absolute;
+    left: var(--pixel);
+}
+.bd-borde-abajo {
+    top: calc(var(--pixel) * 8);
+}
+.bd-borde-izquierda, .bd-borde-derecha {
+    height: calc(var(--pixel) * 7);
+    width: var(--pixel);
+    top: var(--pixel);
+    left: 0;
+}
+.bd-borde-derecha {
+    left: calc(var(--pixel) * 8);
+}
+.bd-flecha-uno, .bd-flecha-dos, .bd-flecha-tres {
+    background-color: black;
+    width: calc(var(--pixel) * 5);
+    height: var(--pixel);
+    position: absolute;
+    top: calc(var(--pixel) * 4);
+    left: calc(var(--pixel) * 2);
+}
+.bd-flecha-dos {
+    transform: rotate(90deg)
+}
+.bd-flecha-tres {
+    top: calc(var(--pixel) * 3);
+    width: calc(var(--pixel) * 3);
+    left: calc(var(--pixel) * 3);
+    
+}
+
+.boton-derecha {
+    transform: rotate(90deg);
+}
+.boton-abajo {
+    transform: rotate(180deg);
+}
+.boton-izquierda {
+    transform: rotate(270deg);
+}
+
+/* BOTON TURBO */
+
+.boton-turbo {
+    *margin-top: 20px;
+    /* ES UN GRID DE 18x9 */
+    --pixel-bt : calc(100% / 18);
+    aspect-ratio: 2 / 1;
+    width: 120px;
+    height: 60px;
+    display: block;
+    position: relative;
+    *background-color: aquamarine;
+}
+.bt-fondo {
+    position: absolute;
+    top: calc(var(--pixel-bt) * 2);
+    left: calc(var(--pixel-bt));
+    width: calc(var(--pixel-bt) * 16);
+    height: calc(var(--pixel-bt) * 14);
+    background-color: grey;
+}
+
+.bt-borde-arriba, .bt-borde-abajo {
+    background-color: black;
+    height: calc(var(--pixel-bt) * 2);
+    width: calc(var(--pixel-bt) * 16);
+    position: absolute;
+    left: var(--pixel-bt);
+}
+.bt-borde-abajo {
+    position: absolute;
+    top: calc(var(--pixel-bt) * 16);
+}
+
+.bt-borde-izquierda, .bt-borde-derecha {
+    background-color: black;
+    height: calc(var(--pixel-bt) * 14);
+    width: var(--pixel-bt);
+    position: absolute;
+    top: calc(var(--pixel-bt)*2);
+}
+.bt-borde-derecha {
+    left: calc(var(--pixel-bt) * 17);
+}
+
+.bt-etiqueta-uno, .bt-etiqueta-dos, .bt-etiqueta-tres {
+    background-color: black;
+    height: calc(var(--pixel-bt) * 2);
+    width: var(--pixel-bt);
+    position: absolute;
+    top: calc(var(--pixel-bt) * 10);
+    left: calc(var(--pixel-bt) * 2);
+}
+
+.bt-etiqueta-dos {
+    width: calc(var(--pixel-bt) * 14);
+    top: calc(var(--pixel-bt) * 12);
+}
+
+.bt-etiqueta-tres {
+    left: calc(var(--pixel-bt) * 15);
+}
+
+.etiqueta-turbo, .etiqueta-turbo:active, .etiqueta-turbo:link, .etiqueta-turbo:visited {
+    font-size: calc(var(--pixel-bt) * 20);
+    position: absolute;
+    top: calc(var(--pixel-bt) * 6);
+    left: calc(var(--pixel-bt) * 4.5);
+}
+
+/* BOTON TURBO */
+/*-----------------ESTILOS DE LOS BOTONES-------------------*/
+
+/* MEDIA QUERYS */
+
+@media screen and (min-width: 1200px) {
+        .botonera {
+            flex-direction: row;
+            width: 30%;
+            height: 140px;
+            padding-block: 10px;
+        }
+
+        canvas {
+            max-width: 70vh;
+        }
+
+        .stats-container {
+            display: flex;
+            justify-content: center;
+            
+        }
+        
+        .stats {
+            width: 25%;
+            display: flex;
+            align-items: center;
+            justify-content: space-evenly;
+        }
+
+
+
+        .tabla-container, .indicaciones {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 25%;
+        }
+
+        .controles, .niveles, .tabla {
+            list-style: none;
+        }
+
+        .nivel, .control, .puntaje {
+            text-align: left;
+        }
+
+        .panel-central {
+            display: flex;
+            justify-content: space-evenly;
+            width: 90%;
+            margin-inline: auto;
+
+
+        }
+}
+
+
+
+
+
+
+
+
+/* MEDIA QUERYS */

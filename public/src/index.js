@@ -39,6 +39,15 @@ Y QUE VAYAN CAMBIANDO O MOVIENDOSE
 
 CADA 2-3 NIVELES LA FORMA DE LA SERPIENTE PUEDE IR CAMBIANDO (UN GORRITO, UNAS OREJITAS, UNOS ANTIOJITOS)
 
+YO
+NIVELES 1 AL 5: SIN PAREDES
+NIVELES 6 AL 10: MITAD PAREDES
+NIVELES 11 A 15: PAREDES SE MUEVEN
+NIVELES 16 A 20: CAEN BOMBAS!
+NIVELES 21 A 25: VAN PASANDO OTROS BICHOS JAJAJ QUE FLASH
+NIVEL 26: UN JEFE?? UFF
+NIVELES 27+: PAREDES RANDOM, SE MUEVEN RANDOM, PASAN BICHOS, BOMBAS 
+
 */
 
 //constante de las dimensiones del canvas (ojo porque también están definidas en el html)
@@ -91,11 +100,14 @@ let puntosPorNivel = 100;
 //Valores que salen en la UI---------------------------------------------------------
 
 const ELEMENTOS = {
+  CABEZA: {
+    color: "green"
+  },
   VIBORITA: {
-    color: "green",
+    color: "green"
   },
   COMIDA: {
-    color: "white",
+    color: "white"
   },
 };
 
@@ -105,6 +117,7 @@ let papel = document.querySelector("canvas");
 //Elementos de la UI
 let nivelValor = document.getElementById("nivelValor");
 let puntajeValor = document.getElementById("scoreValor");
+let vidaValor = document.getElementById('vidaValor');
 
 //Aplicando el tamaño al canvas
 papel.width = DIMENSION_CANVAS;
@@ -129,7 +142,8 @@ const DIRECCION = {
 };
 
 const OTRAS_TECLAS = {
-  Space: 'turbo'
+  Space: 'turbo',
+  Escape: 'pausa'
 }
 
 
@@ -255,11 +269,19 @@ const valorInicial = () => {
         x: direccion.x,
         y: direccion.y,
       },
-      bicho: [{ x: bicho.x, y: bicho.y }],
+      bicho: [{ x: bicho.x, y: bicho.y },{ x: bicho.x, y: bicho.y }],
+      cuatroPasosAtras: {
+        posiciones: [],
+        direcciones: [],
+      },
+      vida: 3,
       comida: comida,
-      jugando: false,
+      jugando: true,
+      pausa: false,
+      perdio: false,
       crecimiento: 0,
     };
+
   } else {
     console.log("se repitieron los valores¿?");
     return valorInicial();
@@ -274,8 +296,15 @@ let controles = {
     y: 0,
   },
   bicho: [{ x: 0, y: 0 }],
+  cuatroPasosAtras: {
+    posiciones: [],
+    direcciones: [],
+  },
+  vida: 3,
   comida: { x: 0, y: 250 },
   jugando: true,
+  pausa : false,
+  perdio: false,
   crecimiento: 0,
 };
 
@@ -287,6 +316,63 @@ let dibujarElemento = (elemento, x, y) => {
   ctx.fillRect(x, y, ANCHO_ALTO_VIBORITA, ANCHO_ALTO_VIBORITA);
 };
 
+let dibujarCabeza = (x, y) => {
+  //Creando el elemento (viborita o comida)
+  //Se indica el color según el objeto que se vaya a crear (verde es la viborita y amarillo es la comida)
+  ctx.fillStyle = ELEMENTOS.VIBORITA.color;
+  //Se crea un rectángulo (x,y,width,height) correspondiente a la cabeza
+  ctx.fillRect(x, y, ANCHO_ALTO_VIBORITA, ANCHO_ALTO_VIBORITA);
+
+  //Saco un quinto de la cabeza de la viborita para hacerle los ojos
+  let dospixels = ANCHO_ALTO_VIBORITA / 5;
+
+  ctx.fillStyle = 'white';
+  ctx.fillRect(x + dospixels, y + dospixels, dospixels, dospixels);
+  ctx.fillRect(x + dospixels * 3, y + dospixels, dospixels, dospixels);
+  
+  //Después vemos si le pongo colmillos y lengua
+  
+  //Si está yendo a la derecha
+  if(controles.direccion.x === 1) {
+    ctx.fillStyle = 'black';
+    if(ELEMENTOS.VIBORITA.color === 'green'){
+    ctx.fillRect(x + dospixels, y + dospixels * 3, dospixels / 2, dospixels / 2);
+    }
+    ctx.fillRect(x + dospixels, y + dospixels * 3.5, dospixels * 3, dospixels / 2);
+  }
+  //Si está yendo a la izquierda
+  if(controles.direccion.x === -1) {
+    ctx.fillStyle = 'black';
+    if(ELEMENTOS.VIBORITA.color === 'green'){
+    ctx.fillRect(x + dospixels * 3.5, y + dospixels * 3, dospixels / 2, dospixels / 2);
+    }
+    ctx.fillRect(x + dospixels, y + dospixels * 3.5, dospixels * 3, dospixels / 2);
+  }
+  
+  //Si está yendo a abajo
+  if(controles.direccion.y === 1) {
+    ctx.fillStyle = 'black';
+    if(ELEMENTOS.VIBORITA.color === 'green'){
+      ctx.fillRect(x + dospixels, y + dospixels * 3.25, dospixels / 2, dospixels / 2);
+      ctx.fillRect(x + dospixels * 3.5, y + dospixels * 3, dospixels / 2, dospixels / 2);
+    }
+    ctx.fillRect(x + dospixels, y + dospixels * 3.75, dospixels * 3, dospixels / 2);
+  }
+
+  //Si está yendo a arriba
+ 
+ /* 
+  if(controles.direccion.y === -1) {
+    ctx.fillStyle = 'black';
+    ctx.fillRect(x + dospixels, y + dospixels / 2 , dospixels / 2, dospixels / 2);
+    //ctx.fillRect(x + dospixels * 3.5, y + dospixels / 2, dospixels / 2, dospixels / 2);
+    ctx.fillRect(x + dospixels, y, dospixels * 3, dospixels / 2);
+  } */
+
+
+
+};
+
 let dibujar = () => {
   //borrar el canvas con clearRect (o sea se borra todo en ese rectangulo)
   ctx.clearRect(0, 0, 500, 500);
@@ -294,7 +380,11 @@ let dibujar = () => {
   //Loop para dibujar todos los nodos
   for (let i = 0; i < controles.bicho.length; i++) {
     const nodo = controles.bicho[i];
-    dibujarElemento(ELEMENTOS.VIBORITA, nodo.x, nodo.y);
+    if(i === 0) {
+      dibujarCabeza(nodo.x, nodo.y);
+    } else {
+      dibujarElemento(ELEMENTOS.VIBORITA, nodo.x, nodo.y);
+    }
   }
   const comida = controles.comida;
   dibujarElemento(ELEMENTOS.COMIDA, comida.x, comida.y);
@@ -354,6 +444,38 @@ let subirVelocidad = () => {
   }
 };
 
+let retroceder = () => {
+  //Se supone que tenemos las dos últimas posiciones en dosPasosAtras
+  //Animamos la viborita haciendo aparecer y desaparecer
+
+  ELEMENTOS.VIBORITA.color = 'red'
+  controles.bicho = copia(controles.cuatroPasosAtras.posiciones[0]);
+  
+  setTimeout(() => {
+    controles.bicho = copia(controles.cuatroPasosAtras.posiciones[1]);
+  },1000);
+  
+  setTimeout(() => {
+    controles.bicho = copia(controles.cuatroPasosAtras.posiciones[2]);
+  },2000);
+
+  setTimeout(() => {
+    controles.bicho = copia(controles.cuatroPasosAtras.posiciones[3]);
+  },3000);
+  
+  //Seteando la posicion y direccion y volviendo a empezar
+  setTimeout(() => {
+    controles.bicho = copia(controles.cuatroPasosAtras.posiciones[4]);
+    controles.direccion = copia(controles.cuatroPasosAtras.direcciones[4]);
+    ELEMENTOS.VIBORITA.color = 'green'
+    controles.jugando = true;
+  },4000);
+
+  
+
+
+}
+
 //Seteando el loop
 
 let loop = () => {
@@ -373,7 +495,17 @@ let loop = () => {
 
   //Primero chequea se está jugando(?)
 
-  if (controles.jugando) {
+  if (controles.jugando && !controles.perdio) {
+
+    //Guarda la posición completa y la direccion anterior para poder volver dos pasos atrás si choca
+    //Lo inserta en el indice 0 con unshift y luego recorta el lenght a 2 para conservar sólo los dos últimos
+    controles.cuatroPasosAtras.posiciones.unshift(copia(controles.bicho));
+    controles.cuatroPasosAtras.posiciones.length = 5;
+
+    controles.cuatroPasosAtras.direcciones.unshift(copia(controles.direccion));
+    controles.cuatroPasosAtras.direcciones.length = 5;
+
+
     for (let i = ultimoIndiceBicho; i > -1; i--) {
       let nodo = controles.bicho[i]; //el nodo original con su posición
 
@@ -401,8 +533,21 @@ let loop = () => {
   //Ni idea de por qué está en esta posición y no antes de empezar
   //Chequea si chocó y cambia el estado de jugando
   if (choco()) {
-    controles.jugando = false;
-    perdiste();
+    console.log('choco', 'jugando: ', controles.jugando, 'vida:', controles.vida);
+    if(controles.jugando) {
+
+      controles.jugando = false;
+      controles.vida -=1;
+      vidaValor.innerHTML = controles.vida;
+
+  
+      if(controles.vida === 0){
+        perdiste();
+      } else {
+        retroceder()
+      }
+
+    }
   }
 
   if (niamniam) {
@@ -449,6 +594,12 @@ let loop = () => {
 const equivalen = (obj1, obj2) => {
   return obj1.x === obj2.x && obj1.y === obj2.y;
 };
+
+//Utilidad para copiar objetos
+const copia = (fuente) => {
+    return JSON.parse(JSON.stringify(fuente));
+};
+
 //Capturando el teclado
 
 document.onkeydown = (e) => {
@@ -477,8 +628,18 @@ document.onkeydown = (e) => {
   let esTurbo = OTRAS_TECLAS[e.code] === 'turbo';
   if(esTurbo) {
     turbo = true;
-    console.log('esturbo', e.code, 'turbo: ',turbo)
+    //console.log('esturbo', e.code, 'turbo: ',turbo)
   }
+
+  //Si es escape le pone o saca pausa
+  let esPausa = OTRAS_TECLAS[e.code] === 'pausa';
+  if(esPausa) {
+    controles.jugando = !controles.jugando;
+    controles.pausa = !controles.pausa;
+    //console.log('esturbo', e.code, 'turbo: ',turbo)
+  }
+
+
 };
 
 document.onkeyup = (e) => {
@@ -486,7 +647,7 @@ document.onkeyup = (e) => {
   const esTurbo = OTRAS_TECLAS[e.code] === 'turbo';
   if(esTurbo) {
     turbo = false;
-    console.log('esturbo', e.code, 'turbo: ',turbo)
+    //console.log('esturbo', e.code, 'turbo: ',turbo)
   }
 };
 
@@ -495,6 +656,7 @@ document.onkeyup = (e) => {
 
 const iniciar = () => {
   controles = valorInicial();
+  vidaValor.innerText = controles.vida;
 };
 
 const perdiste = () => {
@@ -515,8 +677,11 @@ const perdiste = () => {
   intervalo_min = INTERVALO_MIN_DEFAULT;
   intervalo_disminucion = INTERVALO_DISMINUCION_DEFAULT;
 
-
   intervalo = intervalo_max;
+
+  perdio = true;
+
+
   //Animar como que pierde
   //popup para ver si quiere jugar de vuelta? si quiere iniciar(), si no pantallita principal :P
   iniciar();
