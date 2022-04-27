@@ -237,23 +237,205 @@ canvas {
 }
 
 /* BOTON TURBO */
+.btn-iniciar {
+    --btn-iniciar-pixel: calc(100% / 18);
+
+}
+.btn-iniciar-fondo {
+
+}
+.btn-iniciar-borde-arriba {
+
+}
+.btn-iniciar-borde-abajo {
+    
+}
+.btn-iniciar-borde-izquierda {
+
+}
+.btn-iniciar-borde-derecha {
+
+}
+.btn-iniciar-caption, .btn-iniciar-caption:active{
+    top: calc(var(--pixel-bt) * 6.5);
+    left: calc(var(--pixel-bt) * 3.75);
+}
+
+/* BOTON INICIAR */
+
+
+
+
+/* BOTON INICIAR */
+
+/* BOTON GENERICO */
+
+.boton-pixel {
+    --btn-pixel : 20px;
+    --btn-px-color-fondo: grey;
+    --btn-px-color-borde: black;
+    --btn-px-font-size : 20px;
+    width: 100%;
+    height: 100%;
+    display: block;
+    position: relative;
+    background-color: aquamarine;
+}
+.btn-px-fondo {
+    position: absolute;
+    top: calc(var(--btn-pixel));
+    left: calc(var(--btn-pixel));
+    width: calc(100% - var(--btn-pixel) * 2);
+    height: calc(100% - var(--btn-pixel) * 2);
+    background-color: var(--btn-px-color-fondo);
+}
+
+.btn-px-borde-arriba, .btn-px-borde-abajo, .btn-px-borde-izquierda, .btn-px-borde-derecha {
+    position: absolute;
+    left: var(--btn-pixel);
+    background-color: var(--btn-px-color-borde);
+    height: var(--btn-pixel);
+    width: calc(100% - var(--btn-pixel) * 2);
+}
+.btn-px-borde-abajo {
+    position: absolute;
+    top: calc(100% - var(--btn-pixel));
+}
+
+.btn-px-borde-izquierda, .btn-px-borde-derecha {
+    height: calc(100% - var(--btn-pixel) * 2);
+    width: var(--btn-pixel);
+    top: var(--btn-pixel);
+    left: 0px;
+}
+.btn-px-borde-derecha {
+    left: calc(100% - var(--btn-pixel));
+}
+
+.btn-px-caption, .btn-px-caption:active, .btn-px-caption:link, .btn-px-caption:visited {
+    font-size: var(--btn-px-font-size);
+    position: absolute;
+    top: calc(var(--btn-pixel) * 6);
+    left: calc(var(--btn-pixel) * 6);
+}
+
+
+/* BOTON GENERICO */
 /*-----------------ESTILOS DE LOS BOTONES-------------------*/
 
 /* ---------------------PANTALLAS DE INICIO - LOGIN - HIGHSCORE - GAMEOVER --------------------- */
 
-.pantalla-inicio, .pantalla-login, .pantalla-gameover, .pantalla-highscore {
+.pantalla {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.popup {
+    width: 70%;
+    height: 60%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-evenly;
+    position: relative;
+    padding: 20px;
+    --pu-pixel: 10px
+}
+
+
+.pu-fondo,.pu-borde-izquierda, .pu-borde-derecha, .pu-borde-arriba, .pu-borde-abajo {
+    background-color: black;
+    position: absolute;
+    width: var(--pu-pixel);
+    height: calc(100% - var(--pu-pixel)* 2);
+    left: 0px;
+}
+
+.pu-fondo {
+    background-color: aqua;
+    width: calc(100% - var(--pu-pixel) * 2);
+    height: calc(100% - var(--pu-pixel) * 2);
+    left: var(--pu-pixel);
+    z-index: -1;
+
+}
+
+.pu-borde-derecha{
+    left: calc(100% - var(--pu-pixel));
+}
+
+.pu-borde-arriba, .pu-borde-abajo {
+    height: var(--pu-pixel);
+    width: calc(100% - var(--pu-pixel)* 2);
+    top: 0px;
+    left: var(--pu-pixel);
+}
+.pu-borde-abajo {
+  top: calc(100% - var(--pu-pixel));
+}
+
+
+.popup-login {
+
+}
+.popup-gameover {
+
+}
+.popup-highscore {
+
+}
+.popup-pausa {
+    width: 40%;
+}
+
+
+
+.caption-pausa {
+    font-size: 2rem;
+}
+
+.btn-pausa-continuar-container {
+    height: 60px;
+    width: 200px;
+}
+
+.boton-pausa-continuar {
+    --btn-pixel : 6px;
+    --btn-px-color-fondo: grey;
+    --btn-px-color-borde: black;
+    --btn-px-font-size : 20px;
+}
+
+.boton-pausa-continuar-caption, .boton-pausa-continuar-caption:active {
+    top: calc(var(--btn-pixel) * 3.5);
+}
+
+
+/* ---------------------PANTALLAS DE INICIO - LOGIN - HIGHSCORE - GAMEOVER --------------------- */
+
+
+
+
+
+
+
+
+.ocultar {
     display: none;
 }
 
-.pantalla-inicio {
-
+.blur {
+    filter: blur(1rem);
 }
 
-.popup-inicio {
 
-}
-
-/* ---------------------PANTALLAS DE INICIO - LOGIN - HIGHSCORE - GAMEOVER --------------------- */
 
 /* MEDIA QUERYS */
 

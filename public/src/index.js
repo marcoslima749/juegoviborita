@@ -114,8 +114,21 @@ const ELEMENTOS = {
 //Refs canvas y contexto
 let papel = document.querySelector("canvas");
 
+//Pantallas
+
+let container = document.getElementById('container');
+
+let pantallaInicio = document.getElementById('pantallaInicio');
+let pantallaLogin = document.getElementById('pantallaLogin');
+let pantallaGameover = document.getElementById('pantallaGameover');
+let pantallaHighscore = document.getElementById('pantallaHighscore');
+let pantallaNivel = document.getElementById('pantallaNivel');
+let pantallaPausa = document.getElementById('pantallaPausa');
+
+
 //Elementos de la UI
 let nivelValor = document.getElementById("nivelValor");
+let popupNivelValor = document.getElementById('popupNivelValor');
 let puntajeValor = document.getElementById("scoreValor");
 let vidaValor = document.getElementById('vidaValor');
 
@@ -127,7 +140,11 @@ let botonAbajo = document.getElementById('botonAbajo');
 let botonDerecha = document.getElementById('botonDerecha');
 
 let botonTurbo = document.getElementById('botonTurbo');
-let botonPausa; //HACERLO Y CAPTURAR
+
+let btnIniciar = document.getElementById('btnIniciar');
+
+let botonPausaContinuar = document.getElementById('botonPausaContinuar');
+
 
 //Aplicando los event listeners
 
@@ -178,9 +195,17 @@ botonTurbo.onmouseup = (e)=> {
   }));
 };
 
+btnIniciar.onclick = (e) => {
+  e.preventDefault();
+  
+  iniciar();
+}
 
-
-
+botonPausaContinuar.onclick = (e) => {
+  e.preventDefault();
+  ocultar(pantallaPausa);
+  controles.pausa = false;
+}
 
 
 
@@ -344,6 +369,7 @@ const valorInicial = () => {
       jugando: true,
       pausa: false,
       perdio: false,
+      animando: false,
       crecimiento: 0,
     };
 
@@ -367,9 +393,10 @@ let controles = {
   },
   vida: 3,
   comida: { x: 0, y: 250 },
-  jugando: true,
+  jugando: false,
   pausa : false,
   perdio: false,
+  animando: false,
   crecimiento: 0,
 };
 
@@ -394,6 +421,15 @@ let dibujarCabeza = (x, y) => {
   ctx.fillStyle = 'white';
   ctx.fillRect(x + dospixels, y + dospixels, dospixels, dospixels);
   ctx.fillRect(x + dospixels * 3, y + dospixels, dospixels, dospixels);
+
+  //Las pupilas tienen que mirar la comida, es decir que se ponen en una de cuatro esquinas
+  ctx.fillStyle = 'black';
+  let comidaALaDerecha = controles.comida.x - x > 0; //Si la comida está a la derecha pinta la pupila a la derecha
+  let comidaAbajo = controles.comida.y - y > 0; //Si la comida está Abajo pinta la pupila abajo
+  ctx.fillRect(x + dospixels * (comidaALaDerecha ? 1.5 : 1), y + dospixels * (comidaAbajo ? 1.5 : 1), dospixels / 2, dospixels / 2);
+  ctx.fillRect(x + dospixels * (comidaALaDerecha ? 3.5 : 3), y + dospixels * (comidaAbajo ? 1.5 : 1), dospixels / 2, dospixels / 2);
+
+
   
   //Después vemos si le pongo colmillos y lengua
   
@@ -462,11 +498,13 @@ let otraComida = () => {
 };
 
 let choco = () => {
-  const head = controles.bicho[0];
+  let head = controles.bicho[0];
 
-  //Chequea si algun nodo aparte del head tiene la misma posición del head y devuelve true si encuentra uno
+  //Chequea si algun nodo aparte de los primeros trestiene la misma posición del head
+  //Esto es porque para chocarse consigo misma la cabeza tiene que morder el quinto nodo
+  //HAY QUE REVISAR QUE NO SE PUEDA CAMBAR LA DIRECCION MÁS RÁPIDO QUE EL LOOP
   let seMordioLaCola = controles.bicho.some(
-    (nodo, index) => index > 0 && nodo.x === head.x && nodo.y === head.y
+    (nodo, index) => index > 3 && nodo.x === head.x && nodo.y === head.y
   );
 
   //Si x < 0 se fue para la izquiera de la pantalla
@@ -488,9 +526,10 @@ let subirNivel = () => {
   //Sube el nivel y lo muestra en pantalla
   nivel++;
   nivelValor.innerText = nivel;
+  popupNivelValor.innerText = nivel;
 
   //Reduce el bicho a uno y pone el intervalo al maximo (restaura la velocidad)
-  controles.bicho.length = 1;
+  controles.bicho.length = 2;
 
   //Probando si sirve subir la velocidad inicial a cada nivel o hay que hacerlo cada 3 niveles poneleeee
   intervalo_max -= intervalo_disminucion;
@@ -513,6 +552,8 @@ let retroceder = () => {
   //Se supone que tenemos las dos últimas posiciones en dosPasosAtras
   //Animamos la viborita haciendo aparecer y desaparecer
 
+  controles.animando = true;
+
   ELEMENTOS.VIBORITA.color = 'red'
   controles.bicho = copia(controles.cuatroPasosAtras.posiciones[0]);
   
@@ -533,7 +574,7 @@ let retroceder = () => {
     controles.bicho = copia(controles.cuatroPasosAtras.posiciones[4]);
     controles.direccion = copia(controles.cuatroPasosAtras.direcciones[4]);
     ELEMENTOS.VIBORITA.color = 'green'
-    controles.jugando = true;
+    controles.animando = false;
   },4000);
 
   
@@ -544,6 +585,15 @@ let retroceder = () => {
 //Seteando el loop
 
 let loop = () => {
+
+  //let str = Date.now().toString();
+  //console.log('loop: ' +  str.substring(str.length - 4, str.length));
+
+
+  //Primero chequea se está jugando(?)
+  if(controles.jugando && !controles.pausa && !controles.perdio && !controles.animando) {
+
+  
   let dx = controles.direccion.x * DESPLAZAMIENTO; //la dirección en x multiplicada por el desplazamiento
   let dy = controles.direccion.y * DESPLAZAMIENTO; //la dirección en y
 
@@ -558,9 +608,8 @@ let loop = () => {
   //Un loop al revés para acomodar primero las posiciones de la cola hasta la cabeza (para no perderlas)
   //y luego la de la cabeza
 
-  //Primero chequea se está jugando(?)
+  
 
-  if (controles.jugando && !controles.perdio) {
 
     //Guarda la posición completa y la direccion anterior para poder volver dos pasos atrás si choca
     //Lo inserta en el indice 0 con unshift y luego recorta el lenght a 2 para conservar sólo los dos últimos
@@ -586,7 +635,6 @@ let loop = () => {
         nodo.y = controles.bicho[i - 1].y;
       }
     }
-  }
 
   /* LOOP */
 
@@ -598,13 +646,11 @@ let loop = () => {
   //Ni idea de por qué está en esta posición y no antes de empezar
   //Chequea si chocó y cambia el estado de jugando
   if (choco()) {
-    console.log('choco', 'jugando: ', controles.jugando, 'vida:', controles.vida);
-    if(controles.jugando) {
-
-      controles.jugando = false;
+    //console.log('choco', 'jugando: ', controles.jugando, 'vida:', controles.vida);
+      turbo = false;
+      botonTurbo.firstElementChild.classList.remove('activo');
       controles.vida -=1;
       vidaValor.innerHTML = controles.vida;
-
   
       if(controles.vida === 0){
         perdiste();
@@ -612,7 +658,6 @@ let loop = () => {
         retroceder()
       }
 
-    }
   }
 
   if (niamniam) {
@@ -643,6 +688,7 @@ let loop = () => {
     controles.crecimiento -= 1;
   }
 
+}
   //llamo a una nueva animación con dibujar
   requestAnimationFrame(dibujar);
 
@@ -652,8 +698,11 @@ let loop = () => {
   //porque de esa manera se puede modificar INTERVALO para aumentar la dificultad (?)
   //También podría aumentar la dificultad modificando el DESPLAZAMIENTO?...
 
-  setTimeout(loop, turbo ? intervalo_min : intervalo); //Si está activado el turbo la velocidad es máxima (intervalo_min)
+  setTimeout(loop, /* 1000 */ turbo ? intervalo_min : intervalo); //Si está activado el turbo la velocidad es máxima (intervalo_min)
+
 };
+
+/* -----------------------UTILIDADES-------------------------- */
 
 //Utilidad para comprar los objetos de posicion
 const equivalen = (obj1, obj2) => {
@@ -662,8 +711,21 @@ const equivalen = (obj1, obj2) => {
 
 //Utilidad para copiar objetos
 const copia = (fuente) => {
-    return JSON.parse(JSON.stringify(fuente));
+  return JSON.parse(JSON.stringify(fuente));
 };
+
+//Para mostrar u ocultar elementos
+const mostrar = (elemento) => {
+  elemento.classList.remove('ocultar');
+  container.classList.add('blur');
+}
+const ocultar = (elemento) => {
+  elemento.classList.add('ocultar');
+  container.classList.remove('blur');
+}
+
+
+/* -----------------------UTILIDADES-------------------------- */
 
 //Capturando el teclado
 
@@ -674,7 +736,7 @@ document.onkeydown = (e) => {
   //no entra si la tecla no es de dirección
   const esDeDireccion = !!DIRECCION[e.code]; //bang bang! estás liquidado ah re
 
-  if (esDeDireccion) {
+  if (esDeDireccion && controles.jugando && !controles.animando && !controles.pausa && !controles.perdio) {
     //no entra si la dirección es la contraria a la actual (la viborita no puede volver sobre sí misma)
     const [x, y] = DIRECCION[e.code];
     //Es verdad que x (la dirección presionada)
@@ -709,7 +771,7 @@ document.onkeydown = (e) => {
 
   //Si es la tecla espaciadora le pone turbo
   let esTurbo = OTRAS_TECLAS[e.code] === 'turbo';
-  if(esTurbo) {
+  if(esTurbo && controles.jugando && !controles.animando && !controles.pausa && !controles.perdio) {
     turbo = true;
     //console.log('esturbo', e.code, 'turbo: ',turbo)
     botonTurbo.firstElementChild.classList.add('activo');
@@ -718,9 +780,13 @@ document.onkeydown = (e) => {
   //Si es escape le pone o saca pausa
   let esPausa = OTRAS_TECLAS[e.code] === 'pausa';
   if(esPausa) {
-    controles.jugando = !controles.jugando;
     controles.pausa = !controles.pausa;
-    //console.log('esturbo', e.code, 'turbo: ',turbo)
+
+    if(controles.pausa) {
+      mostrar(pantallaPausa);
+    } else {
+      ocultar(pantallaPausa);
+    }
   }
   
   
@@ -729,7 +795,7 @@ document.onkeydown = (e) => {
 document.onkeyup = (e) => {
   //Si es la tecla espaciadora le saca el turbo
   const esTurbo = OTRAS_TECLAS[e.code] === 'turbo';
-  if(esTurbo) {
+  if(esTurbo && controles.jugando && !controles.animando && !controles.pausa && !controles.perdio) {
     turbo = false;
     botonTurbo.firstElementChild.classList.remove('activo');
     //console.log('esturbo', e.code, 'turbo: ',turbo)
@@ -763,9 +829,14 @@ document.onkeyup = (e) => {
 const iniciar = () => {
   controles = valorInicial();
   vidaValor.innerText = controles.vida;
+  container.classList.remove('blur');
+  pantallaInicio.classList.add('ocultar');
 };
 
 const perdiste = () => {
+  controles.jugando = false;
+  turbo = false;
+  
   //Recolecta los puntajes para el highscore etc
   let ultimoPuntaje = puntaje;
   let ultimoNivel = nivel;
@@ -776,6 +847,7 @@ const perdiste = () => {
 
   nivel = 1;
   nivelValor.innerText = nivel;
+  popupNivelValor.innerText = nivel;
 
   porciones = 0;
 
@@ -785,15 +857,16 @@ const perdiste = () => {
 
   intervalo = intervalo_max;
 
-  perdio = true;
+
 
 
   //Animar como que pierde
   //popup para ver si quiere jugar de vuelta? si quiere iniciar(), si no pantallita principal :P
-  iniciar();
+    
+  mostrar(pantallaInicio);
 };
 
 window.onload = () => {
-  iniciar();
-  loop();
+  mostrar(pantallaInicio);
+  loop()
 };

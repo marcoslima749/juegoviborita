@@ -12,7 +12,7 @@
     <!-- METAS -->
   </head>
   <body>
-    <div class="container" id="container">
+    <div class="container blur" id="container">
       <h1 class="titulo" id="titulo">La Bicha</h1>
 
       <div class="stats-container">
@@ -23,7 +23,7 @@
           <p class="score" id="score">
             SCORE: <span class="score-valor" id="scoreValor">0</span>
           </p>
-          <p class="vida" id="vida">
+          <p class="vida-stat" id="vidaStat">
             VIDA: <span class="vida-valor" id="vidaValor">3</span>
           </p>
         </div>
@@ -46,7 +46,7 @@
             <li class="nivel nivel-quince">
               Niveles 11 a 15: Las paredes se mueven.
             </li>
-            <li class="nivel nivel-dieciseis">Niveles 15+: ¿?</li>
+            <li class="nivel nivel-dieciseis">Niveles 16+: ¿?</li>
           </ul>
         </div>
 
@@ -144,24 +144,84 @@
     </div>
     <!-- POP UPS DE INICIO - LOGIN - GAMEOVER -->
 
-    <div class="pantalla-inicio" id="pantallaInicio">
-      <div class="popup-inicio" id="popupInicio">
+    <div class="pantalla pantalla-inicio ocultar" id="pantallaInicio">
+      <div class="popup popup-inicio" id="popupInicio">
+        <div class="pu-fondo"></div>
+        <div class="pu-borde-izquierda"></div>
+        <div class="pu-borde-derecha"></div>
+        <div class="pu-borde-arriba"></div>
+        <div class="pu-borde-abajo"></div>
+        <h2>La bicha!</h2>
+
+        <p class="inicio-caption">
+          Bienvenido! ❤️
+        </p>
+        <p>Tenés 3 vidas.</p>
+        <h3>Controles:</h3>
+            <p>
+              Direccion: WASD ˂ ˃ ˄ ˅
+            </p>
+            <p>Turbo!: Espacio</p>
+            <p>Pausa: Escape</p>
+        <p>Apretá el botón iniciar para... iniciar!</p>
+
+        <!-- PARA EL BOTON INICIAR COPIAMOS LAS CLASES DEL BOTON TURBO -->
+        <a class="boton boton-turbo btn-iniciar" id="btnIniciar" href="">
+          <div class="bt-fondo btn-iniciar-fondo"></div>
+          <div class="bt-borde-arriba btn-iniciar-borde-arriba"></div>
+          <div class="bt-borde-abajo btn-iniciar-borde-abajo"></div>
+          <div class="bt-borde-izquierda btn-iniciar-borde-izquierda"></div>
+          <div class="bt-borde-derecha btn-iniciar-borde-derecha"></div>
+          <p class="etiqueta-turbo btn-iniciar-caption">INICIAR</p>
+        </a>
+
+      </div>
+    </div>
+    <div class="pantalla pantalla-login ocultar" id="pantallaLogin">
+      <div class="popup popup-login" id="popupLogin">
         
       </div>
     </div>
-    <div class="pantalla-login" id="pantallaLogin">
-      <div class="popup-login" id="popupLogin">
+
+    <div class="pantalla pantalla-pausa ocultar" id="pantallaPausa">
+      <div class="popup popup-pausa" id="popupPausa">
+        <div class="pu-fondo"></div>
+        <div class="pu-borde-izquierda"></div>
+        <div class="pu-borde-derecha"></div>
+        <div class="pu-borde-arriba"></div>
+        <div class="pu-borde-abajo"></div>
+
+        <h2 class="caption-pausa">PAUSA</h2>
+
+        <div class="btn-pausa-continuar-container">
+          <a href="" class="boton boton-pixel boton-pausa-continuar" id="botonPausaContinuar">
+              <div class="btn-px-fondo"></div>
+              <div class="btn-px-borde-arriba"></div>
+              <div class="btn-px-borde-abajo"></div>
+              <div class="btn-px-borde-derecha"></div>
+              <div class="btn-px-borde-izquierda"></div>
+              <p class="btn-px-caption boton-pausa-continuar-caption">CONTINUAR</p>
+          </a>
+          </div>
+      </div>
+    </div>
+
+    <div class="pantalla pantalla-gameover ocultar" id="pantallaGameover">
+      <div class="popup popup-gameover ocultar" id="popupGameover">
         
       </div>
     </div>
-    <div class="pantalla-gameover" id="pantallaGameover">
-      <div class="popup-gameover" id="popupGameover">
+    <div class="pantalla pantalla-highscore ocultar" id="pantallaHighscore">
+      <div class="popup popup-highscore" id="popupHighscore">
         
       </div>
     </div>
-    <div class="pantalla-highscore" id="pantallaHighscore">
-      <div class="popup-highscore" id="popupHighscore">
-        
+
+    <div class="pantalla pantalla-nivel ocultar" id="pantallaNivel">
+      <div class="popup popup-nivel" id="popupNivel">
+        <p class="popup-nivel-caption">
+          NIVEL: <span class="popup-nivel-valor" id="popupNivelValor">1</span>!
+        </p>
       </div>
     </div>
 

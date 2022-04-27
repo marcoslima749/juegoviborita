@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .botonera {
+            background-color: blueviolet;
+            width: 80%;
+            height: 80%;
+        }
+        .boton {
+            text-decoration: none;
+            font-family: inherit;
+            color: inherit;
+        }
+
+       
+        /* BOTON TURBO */
+        
+        .boton-pixel {
+            --btn-pixel : 20px;
+            --btn-px-color-fondo: grey;
+            --btn-px-color-borde: black;
+            width: 100%;
+            height: 100%;
+            display: block;
+            position: relative;
+            background-color: aquamarine;
+        }
+        .btn-px-fondo {
+            position: absolute;
+            top: calc(var(--btn-pixel));
+            left: calc(var(--btn-pixel));
+            width: calc(100% - var(--btn-pixel) * 2);
+            height: calc(100% - var(--btn-pixel) * 2);
+            background-color: var(--btn-px-color-fondo);
+        }
+        
+        .btn-px-borde-arriba, .btn-px-borde-abajo, .btn-px-borde-izquierda, .btn-px-borde-derecha {
+            position: absolute;
+            left: var(--btn-pixel);
+            background-color: var(--btn-px-color-borde);
+            height: var(--btn-pixel);
+            width: calc(100% - var(--btn-pixel) * 2);
+        }
+        .btn-px-borde-abajo {
+            position: absolute;
+            top: calc(100% - var(--btn-pixel));
+        }
+        
+        .btn-px-borde-izquierda, .btn-px-borde-derecha {
+            height: calc(100% - var(--btn-pixel) * 2);
+            width: var(--btn-pixel);
+            top: var(--btn-pixel);
+            left: 0px;
+        }
+        .btn-px-borde-derecha {
+            left: calc(100% - var(--btn-pixel));
+        }
+
+        .btn-px-caption, .btn-px-caption:active, .btn-px-caption:link, .btn-px-caption:visited {
+            font-size: 20px;
+            position: absolute;
+            top: calc(var(--btn-pixel) * 6);
+            left: calc(var(--btn-pixel) * 6);
+        }
+        
+        /* BOTON TURBO */
+        </style>
+</head>
+<body>
+    <div class="botonera">
+    <a href="" class="boton boton-pixel">
+        <div class="btn-px-fondo"></div>
+        <div class="btn-px-borde-arriba"></div>
+        <div class="btn-px-borde-abajo"></div>
+        <div class="btn-px-borde-derecha"></div>
+        <div class="btn-px-borde-izquierda"></div>
+        <p class="btn-px-caption">Turbo!</p>
+    </a>
+    </div>
+</body>
+</html>
