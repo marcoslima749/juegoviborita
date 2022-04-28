@@ -205,6 +205,9 @@ botonPausaContinuar.onclick = (e) => {
   e.preventDefault();
   ocultar(pantallaPausa);
   controles.pausa = false;
+  if(controles.animaciones.length) {
+    controles.animaciones.forEach((a)=>a.resume());
+  }
 }
 
 
@@ -370,6 +373,7 @@ const valorInicial = () => {
       pausa: false,
       perdio: false,
       animando: false,
+      animaciones : [],
       crecimiento: 0,
     };
 
@@ -397,6 +401,7 @@ let controles = {
   pausa : false,
   perdio: false,
   animando: false,
+  animaciones : [],
   crecimiento: 0,
 };
 
@@ -554,31 +559,82 @@ let retroceder = () => {
 
   controles.animando = true;
 
+  //Si choca al toque la animación anterior tiene que desaparecer
+  if(controles.animaciones.length) {
+    controles.animaciones.forEach(a=>a.pause());
+    controles.animaciones = [];
+  }
+  //La viborita se pone roja
   ELEMENTOS.VIBORITA.color = 'red'
+  //La posición de choque es una posición ilegal por lo que vuelve inmediatamente a la posición anterior
   controles.bicho = copia(controles.cuatroPasosAtras.posiciones[0]);
-  
-  setTimeout(() => {
-    controles.bicho = copia(controles.cuatroPasosAtras.posiciones[1]);
+
+  let pasoUno = new Timer(() => {
+    //Checkea que existan las posiciones anteriores y se asignan
+    if(controles.cuatroPasosAtras.posiciones[1]){
+      controles.bicho = copia(controles.cuatroPasosAtras.posiciones[1]);
+    }
   },1000);
   
-  setTimeout(() => {
+  /* setTimeout(() => {
+    controles.bicho = copia(controles.cuatroPasosAtras.posiciones[1]);
+  },1000); */
+  
+  let pasoDos = new Timer(() => {
+    if(controles.cuatroPasosAtras.posiciones[2]){
+      controles.bicho = copia(controles.cuatroPasosAtras.posiciones[2]);
+    }
+  },2000)
+  
+  /* setTimeout(() => {
     controles.bicho = copia(controles.cuatroPasosAtras.posiciones[2]);
-  },2000);
+  },2000); */
+  
+  let pasoTres = new Timer(() => {
+    if(controles.cuatroPasosAtras.posiciones[3]){
+      controles.bicho = copia(controles.cuatroPasosAtras.posiciones[3]);
+    }
+  },3000)
 
-  setTimeout(() => {
+  /* setTimeout(() => {
     controles.bicho = copia(controles.cuatroPasosAtras.posiciones[3]);
-  },3000);
+  },3000); */
   
   //Seteando la posicion y direccion y volviendo a empezar
-  setTimeout(() => {
+  
+  let pasoCuatro = new Timer(() => {
+    if(controles.cuatroPasosAtras.posiciones[4]){
+    controles.bicho = copia(controles.cuatroPasosAtras.posiciones[4]);
+    }
+
+    //Asigna la dirección de la última posición asignada (se asume que las direcciones y las posiciones tienen el mismo largo)
+    controles.direccion = copia(controles.cuatroPasosAtras.direcciones[controles.cuatroPasosAtras.posiciones.length - 1]);
+    //La viborita ya se recuperó
+    ELEMENTOS.VIBORITA.color = 'green'
+    controles.animando = false;
+    //Se limpian las animaciones
+    controles.animaciones = [];
+
+    //Las posiciones y direcciones anteriores se resetean a la última posición asignada
+    //Esto es porque si se vuelve a chocar enseguida las posiciones anteriores pueden
+    //Ser la posición donde choca y perderías otra vida instantáneamente = gameover
+    controles.cuatroPasosAtras.posiciones[0] = controles.cuatroPasosAtras.posiciones[controles.cuatroPasosAtras.posiciones.length - 1];
+    controles.cuatroPasosAtras.posiciones.length = 1;
+    controles.cuatroPasosAtras.direcciones[0] = controles.cuatroPasosAtras.direcciones[controles.cuatroPasosAtras.direcciones.length - 1];
+    controles.cuatroPasosAtras.direcciones.length = 1;
+    console.log('posiciones:', controles.cuatroPasosAtras.posiciones)
+    console.log('direcciones:', controles.cuatroPasosAtras.direcciones)
+  },4000)
+
+  /* setTimeout(() => {
     controles.bicho = copia(controles.cuatroPasosAtras.posiciones[4]);
     controles.direccion = copia(controles.cuatroPasosAtras.direcciones[4]);
     ELEMENTOS.VIBORITA.color = 'green'
     controles.animando = false;
-  },4000);
+  },4000); */
 
-  
-
+  //Las animaciones se guardan en controles.animaciones para poder pausarlas y resumirlas
+  controles.animaciones.push(pasoUno,pasoDos,pasoTres,pasoCuatro);
 
 }
 
@@ -614,10 +670,19 @@ let loop = () => {
     //Guarda la posición completa y la direccion anterior para poder volver dos pasos atrás si choca
     //Lo inserta en el indice 0 con unshift y luego recorta el lenght a 2 para conservar sólo los dos últimos
     controles.cuatroPasosAtras.posiciones.unshift(copia(controles.bicho));
-    controles.cuatroPasosAtras.posiciones.length = 5;
+
+    //Checkea que el length sea mayor 5 previo a cortar el sobrante
+    //Si no se hace esto  en la situación de chocar dos veces seguidas rápido se termina en un error
+    //Por pasar undefined a copia() (json.parse)
+    if(controles.cuatroPasosAtras.posiciones.length > 5) {
+      controles.cuatroPasosAtras.posiciones.length = 5;
+    }
+
 
     controles.cuatroPasosAtras.direcciones.unshift(copia(controles.direccion));
-    controles.cuatroPasosAtras.direcciones.length = 5;
+    if(controles.cuatroPasosAtras.direcciones.length > 5) {
+      controles.cuatroPasosAtras.direcciones.length = 5;
+    }
 
 
     for (let i = ultimoIndiceBicho; i > -1; i--) {
@@ -724,6 +789,30 @@ const ocultar = (elemento) => {
   container.classList.remove('blur');
 }
 
+/*TIMER stackoverflow te amo*/
+
+var Timer = function(callback, delay) {
+  var timerId, start, remaining = delay;
+
+  this.pause = function() {
+      window.clearTimeout(timerId);
+      timerId = null;
+      remaining -= Date.now() - start;
+  };
+
+  this.resume = function() {
+      if (timerId) {
+          return;
+      }
+
+      start = Date.now();
+      timerId = window.setTimeout(callback, remaining);
+  };
+
+  this.resume();
+};
+
+/*stackoverflow te amo*/
 
 /* -----------------------UTILIDADES-------------------------- */
 
@@ -784,8 +873,14 @@ document.onkeydown = (e) => {
 
     if(controles.pausa) {
       mostrar(pantallaPausa);
+      controles.animaciones.forEach((animacion)=>{
+        animacion.pause();
+      });
     } else {
       ocultar(pantallaPausa);
+      controles.animaciones.forEach((animacion)=>{
+        animacion.resume();
+      });
     }
   }
   
