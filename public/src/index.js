@@ -863,10 +863,57 @@ const perdiste = () => {
   //Animar como que pierde
   //popup para ver si quiere jugar de vuelta? si quiere iniciar(), si no pantallita principal :P
     
-  mostrar(pantallaInicio);
+  mostrar(pantallaGameover);
 };
 
 window.onload = () => {
   mostrar(pantallaInicio);
   loop()
 };
+
+
+/*
+REVISARRRRRRRRRRRRRR PARA PAUSAR LAS ANIMACIONES
+
+codigo de stackoverflow para usar un settimeout pausable
+
+https://stackoverflow.com/questions/3969475/javascript-pause-settimeout
+
+var Timer = function(callback, delay) {
+    var timerId, start, remaining = delay;
+
+    this.pause = function() {
+        window.clearTimeout(timerId);
+        timerId = null;
+        remaining -= Date.now() - start;
+    };
+
+    this.resume = function() {
+        if (timerId) {
+            return;
+        }
+
+        start = Date.now();
+        timerId = window.setTimeout(callback, remaining);
+    };
+
+    this.resume();
+};
+
+var timer = new Timer(function() {
+    alert("Done!");
+}, 1000);
+
+timer.pause();
+// Do some stuff...
+timer.resume();
+
+
+
+
+
+
+
+
+
+*/
