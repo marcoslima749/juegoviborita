@@ -1,18 +1,19 @@
-//BUSCA! //CONTINUAR
+
 
 /*
 FUNCIONALIDADES ADICIONALES ESPERADAS:
--TIENE QUE TENER UNA PANTALLA PRINCIPAL PARA CLICKEAR EN "EMPEZAR"
--A MEDIDA QUE TRANSCURRA EL JUEGO TIENE QUE IR SUMANDO PUNTOS A UN TOTAL DE SCORE EN LA PANTALLA
--CUANDO TERMINA TIENE QUE MOSTRAR EL SCORE EN EL CENTRO, SI ES EL MEJOR DE LOS SCORE GUARDADOS EN LOCAL
-STORAGE ME TIENE QUE PEDIR QUE INGRESE LAS 3 INICIALES
--LUEGO DE ESO ME TIENE QUE MOSTRAR UN PROMPT PARA VOLVER A EMPEZAR O NO
-SI APRETO NO - VA A LA PANTALLA PRINCIPAL
--A MEDIDA QUE LE SERPIENTE VA COMIENDO LA COMIDA TIENE QUE IR CRECIENDO CADA VEZ MÁS (+2,+3)
-Y EL LOOP TAMBIÉN TIENE QUE SER CADA VEZ MÁS RÁPIDO (INTERVALO--)
--TIENE QUE TENER CONTROLES VISIBLES (BOTONCITOS) PARA PODER JUGAR DESDE EL CELU
--BUENO, TIENE QUE SER RESPONSIVE
--EL CANVAS TENDRÍA QUE TOMAR EL TAMAÑO DE LA PANTALLA DEL USUARIO (CELU O DESKTOP)
+LISTO -TIENE QUE TENER UNA PANTALLA PRINCIPAL PARA CLICKEAR EN "EMPEZAR"
+LISTO -A MEDIDA QUE TRANSCURRA EL JUEGO TIENE QUE IR SUMANDO PUNTOS A UN TOTAL DE SCORE EN LA PANTALLA
+LISTO -CUANDO TERMINA TIENE QUE MOSTRAR EL SCORE EN EL CENTRO, SI ES EL MEJOR DE LOS SCORE GUARDADOS EN LOCAL
+  STORAGE ME TIENE QUE PEDIR QUE INGRESE LAS 3 INICIALES
+LISTO -LUEGO DE ESO ME TIENE QUE MOSTRAR UN PROMPT PARA VOLVER A EMPEZAR O NO
+  SI APRETO NO - VA A LA PANTALLA PRINCIPAL
+LISTO -A MEDIDA QUE LE SERPIENTE VA COMIENDO LA COMIDA TIENE QUE IR CRECIENDO CADA VEZ MÁS (+2,+3)
+  Y EL LOOP TAMBIÉN TIENE QUE SER CADA VEZ MÁS RÁPIDO (INTERVALO--)
+LISTO -TIENE QUE TENER CONTROLES VISIBLES (BOTONCITOS) PARA PODER JUGAR DESDE EL CELU
+-TIENE QUE CAPTURAR EL SWIPE
+LISTO PONELEEEEEE -BUENO, TIENE QUE SER RESPONSIVE
+LISTO -EL CANVAS TENDRÍA QUE TOMAR EL TAMAÑO DE LA PANTALLA DEL USUARIO (CELU O DESKTOP)
 
 -YO QUIERO QUE TENGA UNA ANIMACIÓN DE PÉRDIDA COMO QUE SE VA HACIENDO CHICA DESDE LA COLA Y CUANDO
 LLEGA A LA CABEZA TINTINEA Y SE ROMPE? UH FLASH QUE EXPLOTE EN PEDAZOS
@@ -890,7 +891,7 @@ const ocultar = (elemento) => {
   container.classList.remove('blur');
 }
 
-/*TIMER stackoverflow te amo*/
+/*TIMER stackoverflow te amo https://stackoverflow.com/questions/3969475/javascript-pause-settimeout */
 
 var Timer = function(callback, delay) {
   var timerId, start, remaining = delay;
@@ -1069,47 +1070,69 @@ window.onload = () => {
 
 
 /*
-REVISARRRRRRRRRRRRRR PARA PAUSAR LAS ANIMACIONES
+REVISARRRRRRRRRRRRRR PARA EL SWIPE
 
-codigo de stackoverflow para usar un settimeout pausable
+let ongoingTouches = [];
 
-https://stackoverflow.com/questions/3969475/javascript-pause-settimeout
+function handleStart(evt) {
+  evt.preventDefault();
+  log('touchstart.');
+  const touches = evt.changedTouches;
 
-var Timer = function(callback, delay) {
-    var timerId, start, remaining = delay;
+  for (let i = 0; i < touches.length; i++) {
+    log(`touchstart: ${i}.`);
+    ongoingTouches.push(copyTouch(touches[i]));
+    
+    log(`color of touch with id ${ touches[i].identifier } = ${ color }`);
+    
+  }
+}
 
-    this.pause = function() {
-        window.clearTimeout(timerId);
-        timerId = null;
-        remaining -= Date.now() - start;
-    };
+function handleMove(evt) {
+  evt.preventDefault();
+  const el = document.getElementById('canvas');
+  const touches = evt.changedTouches;
 
-    this.resume = function() {
-        if (timerId) {
-            return;
-        }
+  for (let i = 0; i < touches.length; i++) {
+    const idx = ongoingTouchIndexById(touches[i].identifier);
 
-        start = Date.now();
-        timerId = window.setTimeout(callback, remaining);
-    };
+    if (idx >= 0) {
+      log(`continuing touch ${ idx }`);
+      log(`ctx.moveTo( ${ ongoingTouches[idx].pageX }, ${ ongoingTouches[idx].pageY } );`);
+      
+      //ESTA ES LA INFO DE LOS EVENTOS
+      ctx.moveTo(ongoingTouches[idx].pageX, ongoingTouches[idx].pageY);
+      log(`ctx.lineTo( ${ touches[i].pageX }, ${ touches[i].pageY } );`);
+      ctx.lineTo(touches[i].pageX, touches[i].pageY);
 
-    this.resume();
-};
+      //DURANTE EL LOOP REEMPLAZA UN VALOR CON OTRO REVISAR POR QUÉ
+      ongoingTouches.splice(idx, 1, copyTouch(touches[i]));  // swap in the new touch record
 
-var timer = new Timer(function() {
-    alert("Done!");
-}, 1000);
-
-timer.pause();
-// Do some stuff...
-timer.resume();
-
-
+    } else {
+      log('can\'t figure out which touch to continue');
+    }
+  }
+}
 
 
 
+function ongoingTouchIndexById(idToFind) {
+  for (let i = 0; i < ongoingTouches.length; i++) {
+    const id = ongoingTouches[i].identifier;
+
+    if (id == idToFind) {
+      return i;
+    }
+  }
+  return -1;    // not found
+}
 
 
+//VER ESTA FUNCIÓN PARA REMPLAZAR A copia() PORQUE PUEDE QUE SEA MÁS RÁPIDA(?)
+
+function copyTouch({ identifier, pageX, pageY }) {
+  return { identifier, pageX, pageY };
+}
 
 
 */
