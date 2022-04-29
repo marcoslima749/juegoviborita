@@ -90,6 +90,47 @@ let nivel = 1;
 //puntaje total
 let puntaje = 0;
 
+let highScore = [];
+
+if (typeof(Storage) !== 'undefined') {
+  // Código cuando Storage es compatible
+  if(localStorage.getItem('laBichaHighScore')) {
+    highScore = JSON.parse(localStorage.getItem('laBichaHighScore'));
+  } else {
+    highScore =  [{
+      nombre: 'MJL',
+      puntaje: 10
+    },{
+      nombre: 'CAPTAIN TSUBASA',
+      puntaje:  27
+    },{
+      nombre: 'SOLID SNAKE',
+      puntaje: 5
+    }];
+  }
+} else {
+ // Código cuando Storage NO es compatible
+ highScore =  [{
+  nombre: 'MJL',
+  puntaje: 10
+},{
+  nombre: 'CAPTAIN TSUBASA',
+  puntaje:  27
+},{
+  nombre: 'SOLID SNAKE',
+  puntaje: 5
+}];
+}
+
+
+
+
+
+//puntaje al final del juego, se asigna en la funcion perdiste
+let ultimoPuntaje;
+let ultimoNivel;
+
+
 //Los puntos que aumenta el puntaje cada vez que la serpiente come una comida
 let puntosPorComida = 10;
 //Los puntos por avanzar de nivel
@@ -130,7 +171,12 @@ let pantallaPausa = document.getElementById('pantallaPausa');
 let nivelValor = document.getElementById("nivelValor");
 let popupNivelValor = document.getElementById('popupNivelValor');
 let puntajeValor = document.getElementById("scoreValor");
+let gameoverPuntajeValor = document.getElementById("gameoverPuntajeValor");
+let inputGameoverNombre = document.getElementById("inputGameoverNombre");
 let vidaValor = document.getElementById('vidaValor');
+let tabla = document.getElementById('tabla');
+
+
 
 //Botones
 
@@ -142,6 +188,8 @@ let botonDerecha = document.getElementById('botonDerecha');
 let botonTurbo = document.getElementById('botonTurbo');
 
 let btnIniciar = document.getElementById('btnIniciar');
+
+let botonGameoverJugar = document.getElementById('botonGameoverJugar');
 
 let botonPausaContinuar = document.getElementById('botonPausaContinuar');
 
@@ -197,9 +245,13 @@ botonTurbo.onmouseup = (e)=> {
 
 btnIniciar.onclick = (e) => {
   e.preventDefault();
+
+  let posiciones = highScore.map((hs)=> nuevoHighScore(hs.nombre, hs.puntaje)).join('');
+  console.log(posiciones)
+  tabla.innerHTML = posiciones;
   
   iniciar();
-}
+};
 
 botonPausaContinuar.onclick = (e) => {
   e.preventDefault();
@@ -208,8 +260,17 @@ botonPausaContinuar.onclick = (e) => {
   if(controles.animaciones.length) {
     controles.animaciones.forEach((a)=>a.resume());
   }
-}
+};
 
+botonGameoverJugar.onclick = (e) => {
+  e.preventDefault();
+  let nombre = inputGameoverNombre.innerText;
+  if(nombre.trim() !== "") {
+    highScore.push({nombre: nombre, puntaje: ultimoPuntaje});
+    localStorage.setItem('laBichaHighScore', JSON.stringify(highScore));
+  }
+  window.location.href = '/';
+};
 
 
 //Aplicando el tamaño al canvas
@@ -373,6 +434,7 @@ const valorInicial = () => {
       pausa: false,
       perdio: false,
       animando: false,
+      pausable: true,
       animaciones : [],
       crecimiento: 0,
     };
@@ -401,6 +463,7 @@ let controles = {
   pausa : false,
   perdio: false,
   animando: false,
+  pausable: false,
   animaciones : [],
   crecimiento: 0,
 };
@@ -527,6 +590,7 @@ let subirNivel = () => {
   //Suma los puntos por nivel multiplicado por el nivel para que a más nivel más puntos y lo muestra en pantalla
   puntaje += puntosPorNivel * nivel;
   puntajeValor.innerText = puntaje;
+  gameoverPuntajeValor.innerText = puntaje;
 
   //Sube el nivel y lo muestra en pantalla
   nivel++;
@@ -544,6 +608,18 @@ let subirNivel = () => {
   intervalo = intervalo_max;
 
   console.log('nuevos intervalos: ', 'intervalor_max: ', intervalo_max,'intervalo_min: ',intervalo_min,'intervalo_disminucion: ',intervalo_disminucion);
+
+  mostrar(pantallaNivel);
+  controles.animando = true;
+  controles.pausable = false;
+  let animacionSubirNivel = new Timer(()=> {
+    ocultar(pantallaNivel);
+    controles.animando = false;
+    controles.pausable = true;
+  },3000);
+
+  controles.animaciones.push(animacionSubirNivel);
+
 };
 
 let subirVelocidad = () => {
@@ -552,6 +628,26 @@ let subirVelocidad = () => {
     subirNivel();
   }
 };
+
+let pausarResumir = () => {
+  if(controles.pausable) {
+    
+    controles.pausa = !controles.pausa;
+  
+      if(controles.pausa) {
+        mostrar(pantallaPausa);
+        controles.animaciones.forEach((animacion)=>{
+          animacion.pause();
+        });
+      } else {
+        ocultar(pantallaPausa);
+        controles.animaciones.forEach((animacion)=>{
+          animacion.resume();
+        });
+      }
+  }
+
+}
 
 let retroceder = () => {
   //Se supone que tenemos las dos últimas posiciones en dosPasosAtras
@@ -729,6 +825,7 @@ let loop = () => {
     //Aumenta el puntaje
     puntaje += puntosPorComida;
     puntajeValor.innerText = puntaje;
+    gameoverPuntajeValor.innerText = puntaje;
 
     //Suma el valor del nivel al crecimiento para luego hacer crecer la viborita
     controles.crecimiento += nivel;
@@ -781,11 +878,15 @@ const copia = (fuente) => {
 
 //Para mostrar u ocultar elementos
 const mostrar = (elemento) => {
-  elemento.classList.remove('ocultar');
+  if(elemento.classList.contains('ocultar')) {
+    elemento.classList.remove('ocultar');
+  }
   container.classList.add('blur');
 }
 const ocultar = (elemento) => {
+  if(!elemento.classList.contains('ocultar')) {
   elemento.classList.add('ocultar');
+  }
   container.classList.remove('blur');
 }
 
@@ -813,6 +914,17 @@ var Timer = function(callback, delay) {
 };
 
 /*stackoverflow te amo*/
+
+/* constructor de los puntajes */
+
+const nuevoHighScore = (nombre,puntaje) => {
+  return `<li class="puntaje">
+	<span class="puntaje-nombre">${nombre}</span> :
+	<span class="puntaje-valor">${puntaje}</span>
+</li>`;
+}
+
+/* constructor de los puntajes */
 
 /* -----------------------UTILIDADES-------------------------- */
 
@@ -869,19 +981,7 @@ document.onkeydown = (e) => {
   //Si es escape le pone o saca pausa
   let esPausa = OTRAS_TECLAS[e.code] === 'pausa';
   if(esPausa) {
-    controles.pausa = !controles.pausa;
-
-    if(controles.pausa) {
-      mostrar(pantallaPausa);
-      controles.animaciones.forEach((animacion)=>{
-        animacion.pause();
-      });
-    } else {
-      ocultar(pantallaPausa);
-      controles.animaciones.forEach((animacion)=>{
-        animacion.resume();
-      });
-    }
+    pausarResumir()
   }
   
   
@@ -933,8 +1033,8 @@ const perdiste = () => {
   turbo = false;
   
   //Recolecta los puntajes para el highscore etc
-  let ultimoPuntaje = puntaje;
-  let ultimoNivel = nivel;
+  ultimoPuntaje = puntaje;
+  ultimoNivel = nivel;
 
   //Restaura los valores al inicio y los muestra en pantalla
   puntaje = 0;
@@ -960,6 +1060,7 @@ const perdiste = () => {
     
   mostrar(pantallaGameover);
 };
+
 
 window.onload = () => {
   mostrar(pantallaInicio);

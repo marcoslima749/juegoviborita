@@ -53,24 +53,9 @@
         <canvas></canvas>
 		<div class="tabla-container">
 
+      <h2 class="tabla-titulo">Tabla de Posiciones:</h2>
 			<ul class="tabla" id="tabla">
-				<h2 class="tabla-titulo">Tabla de Posiciones:</h2>
 				
-				<li class="puntaje" id="puntaje-uno">
-					<span class="puntaje-nombre" id="puntajeNombre">MJL</span> :
-					<span class="puntaje-valor" id="puntajeValor">10</span>
-				</li>
-				<li class="puntaje" id="puntaje-dos">
-					<span class="puntaje-nombre" id="puntajeNombre"
-					>CAPTAIN TSUBASA</span
-					>
-					:
-					<span class="puntaje-valor" id="puntajeValor">27</span>
-				</li>
-				<li class="puntaje" id="puntaje-tres">
-					<span class="puntaje-nombre" id="puntajeNombre">SOLID SNAKE</span> :
-					<span class="puntaje-valor" id="puntajeValor">5</span>
-				</li>
 			</ul>
 		</div>
       </div>
@@ -203,6 +188,17 @@
               <p class="btn-px-caption boton-pausa-continuar-caption">CONTINUAR</p>
           </a>
           </div>
+
+          <div class="btn-pausa-salir-container">
+            <a href="" class="boton boton-pixel boton-pausa-salir" id="botonPausaSalir">
+                <div class="btn-px-fondo"></div>
+                <div class="btn-px-borde-abajo"></div>
+                <div class="btn-px-borde-derecha"></div>
+                <div class="btn-px-borde-arriba"></div>
+                <div class="btn-px-borde-izquierda"></div>
+                <p class="btn-px-caption boton-pausa-salir-caption">SALIR</p>
+            </a>
+          </div>
       </div>
     </div>
 
@@ -214,7 +210,21 @@
         <div class="pu-borde-arriba"></div>
         <div class="pu-borde-abajo"></div>
 
-        <p class="pu-gameover-caption">GAME OVER... :(</p>
+        <!-- <p class="pu-gameover-caption">GAME OVER... :(</p> -->
+
+        
+        <p class="pu-gameover-puntaje">PUNTAJE: ¡<span class="pu-gameover-puntaje" id="gameoverPuntajeValor">0</span> PUNTOS!</p>
+        
+        <div class="input-gameover-puntaje-container">
+          <div contenteditable="true" class="boton boton-pixel input-gameover-puntaje-exterior">
+              <div class="btn-px-fondo input-gameover-puntaje" id="inputGameoverNombre"></div>
+              <div class="btn-px-borde-abajo"></div>
+              <div class="btn-px-borde-derecha"></div>
+              <div class="btn-px-borde-arriba"></div>
+              <div class="btn-px-borde-izquierda"></div>
+          </div>
+        </div>
+
         <p class="pu-gameover-caption">¡Gracias por jugar!</p>
         <div class="pantalla-gameover-botonera">
 
@@ -227,18 +237,7 @@
                 <div class="btn-px-borde-izquierda"></div>
                 <p class="btn-px-caption boton-gameover-jugar-caption">¡JUGAR DE NUEVO!</p>
             </a>
-            </div>
-
-            <div class="btn-gameover-salir-container">
-              <a href="" class="boton boton-pixel boton-gameover-salir" id="botonGameoverSalir">
-                  <div class="btn-px-fondo"></div>
-                  <div class="btn-px-borde-abajo"></div>
-                  <div class="btn-px-borde-derecha"></div>
-                  <div class="btn-px-borde-arriba"></div>
-                  <div class="btn-px-borde-izquierda"></div>
-                  <p class="btn-px-caption boton-gameover-salir-caption">SALIR</p>
-              </a>
-            </div>
+          </div>
           
         </div>
       </div>
@@ -251,6 +250,12 @@
 
     <div class="pantalla pantalla-nivel ocultar" id="pantallaNivel">
       <div class="popup popup-nivel" id="popupNivel">
+        <div class="pu-fondo"></div>
+        <div class="pu-borde-izquierda"></div>
+        <div class="pu-borde-derecha"></div>
+        <div class="pu-borde-arriba"></div>
+        <div class="pu-borde-abajo"></div>
+
         <p class="popup-nivel-caption">
           NIVEL: <span class="popup-nivel-valor" id="popupNivelValor">1</span>!
         </p>
