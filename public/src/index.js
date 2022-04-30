@@ -270,6 +270,7 @@ botonGameoverJugar.onclick = (e) => {
     highScore.push({nombre: nombre, puntaje: ultimoPuntaje});
     localStorage.setItem('laBichaHighScore', JSON.stringify(highScore));
   }
+  //No hace falta poner pausable = false porque al redirigir se reinicia el juego
   window.location.href = '/';
 };
 
@@ -424,6 +425,7 @@ const valorInicial = () => {
         x: direccion.x,
         y: direccion.y,
       },
+      proximaDireccion : [],
       bicho: [{ x: bicho.x, y: bicho.y },{ x: bicho.x, y: bicho.y }],
       cuatroPasosAtras: {
         posiciones: [],
@@ -433,7 +435,6 @@ const valorInicial = () => {
       comida: comida,
       jugando: true,
       pausa: false,
-      perdio: false,
       animando: false,
       pausable: true,
       animaciones : [],
@@ -453,6 +454,7 @@ let controles = {
     x: 1,
     y: 0,
   },
+  proximaDireccion : [],
   bicho: [{ x: 0, y: 0 }],
   cuatroPasosAtras: {
     posiciones: [],
@@ -462,7 +464,7 @@ let controles = {
   comida: { x: 0, y: 250 },
   jugando: false,
   pausa : false,
-  perdio: false,
+  
   animando: false,
   pausable: false,
   animaciones : [],
@@ -478,7 +480,6 @@ let dibujarElemento = (elemento, x, y) => {
 };
 
 let dibujarCabeza = (x, y) => {
-  //Creando el elemento (viborita o comida)
   //Se indica el color según el objeto que se vaya a crear (verde es la viborita y amarillo es la comida)
   ctx.fillStyle = ELEMENTOS.VIBORITA.color;
   //Se crea un rectángulo (x,y,width,height) correspondiente a la cabeza
@@ -543,6 +544,58 @@ let dibujarCabeza = (x, y) => {
 
 };
 
+let dibujarCola = (x,y) => {
+//Se indica el color según el objeto que se vaya a crear (verde es la viborita y amarillo es la comida)
+ctx.fillStyle = ELEMENTOS.VIBORITA.color;
+
+
+//Se crea un rectángulo (x,y,width,height) correspondiente a la COLA
+
+ctx.fillRect(x, y, ANCHO_ALTO_VIBORITA, ANCHO_ALTO_VIBORITA);
+
+/* 
+//ESTO LO COMENTÉ PORQUE NO ME GUSTÓ CÓMO QUEDÓ, CAPAZ MÁS ADELANTO LO HAGO
+
+//Si el nodo anterior está a la derecha
+
+if(controles.bicho[controles.bicho.length - 2].x > x) {
+
+  ctx.fillStyle = ELEMENTOS.VIBORITA.color;
+  ctx.fillRect(x + 1,y + 3,1,3);
+  ctx.fillRect(x + 3,y + 2,1,5);
+  ctx.fillRect(x + 5,y + 1,1,7);
+  ctx.fillRect(x + 7,y+0.5,3,9);
+
+  ctx.fillStyle = 'black';
+  ctx.fillRect(x,y + 4,1,2);
+  ctx.fillRect(x + 2,y + 3,1,4);
+  ctx.fillRect(x + 4,y + 2,1,6);
+  ctx.fillRect(x + 6,y + 1,1,8);
+
+}
+
+//Si el nodo anterior está a la izquierda
+if(controles.bicho[controles.bicho.length - 2].x < x) {
+
+  ctx.fillStyle = ELEMENTOS.VIBORITA.color;
+  ctx.fillRect(x + 6,y + 3,1,3);
+  ctx.fillRect(x + 4,y + 2,1,5);
+  ctx.fillRect(x + 2,y + 1,1,7);
+  ctx.fillRect(x,y+0.5,3,9);
+
+  ctx.fillStyle = 'black';
+  ctx.fillRect(x + 9,y + 4,1,2);
+  ctx.fillRect(x + 7,y + 3,1,4);
+  ctx.fillRect(x + 5,y + 2,1,6);
+  ctx.fillRect(x + 3,y + 1,1,8);
+
+}
+
+ */
+
+
+}
+
 let dibujar = () => {
   //borrar el canvas con clearRect (o sea se borra todo en ese rectangulo)
   ctx.clearRect(0, 0, 500, 500);
@@ -550,8 +603,11 @@ let dibujar = () => {
   //Loop para dibujar todos los nodos
   for (let i = 0; i < controles.bicho.length; i++) {
     const nodo = controles.bicho[i];
+
     if(i === 0) {
       dibujarCabeza(nodo.x, nodo.y);
+    } else if(i === controles.bicho.length - 1) {
+      dibujarCola(nodo.x, nodo.y)
     } else {
       dibujarElemento(ELEMENTOS.VIBORITA, nodo.x, nodo.y);
     }
@@ -656,6 +712,11 @@ let retroceder = () => {
 
   controles.animando = true;
 
+  //Las próximas direcciones no tienen sentido porque chocó
+  //También se va a asignar la dirección de la posición tres pasos atrás así que no tiene sentido guardar
+  //Se eliminan las próximas direcciones
+  controles.proximaDireccion = [];
+
   //Si choca al toque la animación anterior tiene que desaparecer
   if(controles.animaciones.length) {
     controles.animaciones.forEach(a=>a.pause());
@@ -705,7 +766,9 @@ let retroceder = () => {
     }
 
     //Asigna la dirección de la última posición asignada (se asume que las direcciones y las posiciones tienen el mismo largo)
-    controles.direccion = copia(controles.cuatroPasosAtras.direcciones[controles.cuatroPasosAtras.posiciones.length - 1]);
+    //CODIGO COMENTADO PROBANDO SI SIRVE DEJARLE LA ÚLTIMA DIRECCIÓN PRESIONADA//controles.direccion = copia(controles.cuatroPasosAtras.direcciones[controles.cuatroPasosAtras.posiciones.length - 1]);
+
+
     //La viborita ya se recuperó
     ELEMENTOS.VIBORITA.color = 'green'
     controles.animando = false;
@@ -744,11 +807,45 @@ let loop = () => {
 
 
   //Primero chequea se está jugando(?)
-  if(controles.jugando && !controles.pausa && !controles.perdio && !controles.animando) {
+  if(controles.jugando && !controles.pausa  && !controles.animando) {
 
-  
-  let dx = controles.direccion.x * DESPLAZAMIENTO; //la dirección en x multiplicada por el desplazamiento
-  let dy = controles.direccion.y * DESPLAZAMIENTO; //la dirección en y
+    let dx = controles.direccion.x * DESPLAZAMIENTO; //la dirección en x multiplicada por el desplazamiento
+    let dy = controles.direccion.y * DESPLAZAMIENTO; //la dirección en y
+    
+    //Hay un bug que si apretás rápido las teclas cambia la dirección dos veces antes
+    //del próximo cuadro y eso te permite volver sobre vos mismo y ese movimiento es ilegal
+    //La solución que se me ocurrió es que cada que toque de teclado pushea una dirección
+    //a controles.proximaDireccion. Pero a cada loop se asigna, si existe, la próxima dirección
+    //desde ese mismo array, y se hace shift para sacar el índice 0.
+    //Pero si el length del array es mayor a tres movimientos se recorta a 3
+    //Entonces tocar el teclado a lo loco no te va a servir más, y la dire va a cambiar
+    //Una sola vez por cuadro, porque se reasigna en cada cuadro
+    //ahora la comprobación para que no vuelva sobre sí misma es antes de asignar la próxima dire
+
+    //Controla que exista una próxima dirección
+    if(controles.proximaDireccion.length) {
+      const proximaX = controles.proximaDireccion[0].x;
+      const proximaY = controles.proximaDireccion[0].y;
+
+    //Acá se tiene que verificar que no vuelva sobre sí misma. Si vuelve entonces la próxima dirección se elimina
+    //no entra si la dirección es la contraria a la actual (la viborita no puede volver sobre sí misma)
+    //Es verdad que x (la dirección presionada)
+    //es distinto que el inverso de la dirección x actual ("""-"""controles.direccion.x)
+    //o sea, no vuelve.
+    const noVuelveEnX = proximaX !== -controles.direccion.x;
+    const noVuelveEnY = proximaY !== -controles.direccion.y;
+    if (noVuelveEnX && noVuelveEnY) {
+      //Cambia la dirección a la próxima
+      controles.direccion.x = proximaX;
+      controles.direccion.y = proximaY;
+    }
+    //Una vez asignada o ignorada, se elimina la primera para dejarle el paso
+      controles.proximaDireccion.shift();
+    
+    }
+
+
+
 
   /* LOOP */
   //defino la cola del bicho (el útlimo objeto en el array)
@@ -938,19 +1035,20 @@ document.onkeydown = (e) => {
   //no entra si la tecla no es de dirección
   const esDeDireccion = !!DIRECCION[e.code]; //bang bang! estás liquidado ah re
 
-  if (esDeDireccion && controles.jugando && !controles.animando && !controles.pausa && !controles.perdio) {
-    //no entra si la dirección es la contraria a la actual (la viborita no puede volver sobre sí misma)
+  if (esDeDireccion && controles.jugando && !controles.animando && !controles.pausa ) {
+    //ACÁ HAY QUE HACER EL CÓDIGO PARA PUSHEAR A PRÓXIMAS DIRECCIONES
+    //La comprobación de que no vuelva sobre sí misma ahora se hace en el loop antes de cada movimiento
     const [x, y] = DIRECCION[e.code];
-    //Es verdad que x (la dirección presionada)
-    //es distinto que el inverso de la dirección x actual ("""-"""controles.direccion.x)
-    //o sea, no vuelve.
-    const noVuelveEnX = x !== -controles.direccion.x;
-    const noVuelveEnY = y !== -controles.direccion.y;
-    if (noVuelveEnX && noVuelveEnY) {
-      //Cambia la dirección según la tecla presionada
-      controles.direccion.x = x;
-      controles.direccion.y = y;
-    }
+
+      //Se comprueba que el array no tenga más de 3 direcciones
+      //Si tiene más de tres direcciones se ignora la instrucción y sólo se reflejan los botones presionados
+      if(controles.proximaDireccion.length < 3) {
+        controles.proximaDireccion.push({x,y});
+      }
+      
+
+
+
     //Modifica los estilos del teclado virtual para reflejar el estado el teclado físico
     switch (e.code) {
       case 'ArrowUp': //arriba
@@ -973,10 +1071,11 @@ document.onkeydown = (e) => {
 
   //Si es la tecla espaciadora le pone turbo
   let esTurbo = OTRAS_TECLAS[e.code] === 'turbo';
-  if(esTurbo && controles.jugando && !controles.animando && !controles.pausa && !controles.perdio) {
+  if(esTurbo && controles.jugando && !controles.animando && !controles.pausa ) {
     turbo = true;
     //console.log('esturbo', e.code, 'turbo: ',turbo)
     botonTurbo.firstElementChild.classList.add('activo');
+    papel.classList.add('velocidad');
   }
   
   //Si es escape le pone o saca pausa
@@ -991,10 +1090,11 @@ document.onkeydown = (e) => {
 document.onkeyup = (e) => {
   //Si es la tecla espaciadora le saca el turbo
   const esTurbo = OTRAS_TECLAS[e.code] === 'turbo';
-  if(esTurbo && controles.jugando && !controles.animando && !controles.pausa && !controles.perdio) {
+  if(esTurbo && controles.jugando && !controles.animando && !controles.pausa ) {
     turbo = false;
     botonTurbo.firstElementChild.classList.remove('activo');
     //console.log('esturbo', e.code, 'turbo: ',turbo)
+    papel.classList.remove('velocidad');
   }
 
   //Modifica los estilos del teclado virtual para reflejar el estado el teclado físico
@@ -1059,6 +1159,7 @@ const perdiste = () => {
   //Animar como que pierde
   //popup para ver si quiere jugar de vuelta? si quiere iniciar(), si no pantallita principal :P
     
+  controles.pausable = false;
   mostrar(pantallaGameover);
 };
 
