@@ -435,6 +435,7 @@ const valorInicial = () => {
       comida: comida,
       jugando: true,
       pausa: false,
+      paredes : [],
       animando: false,
       pausable: true,
       animaciones : [],
@@ -464,7 +465,7 @@ let controles = {
   comida: { x: 0, y: 250 },
   jugando: false,
   pausa : false,
-  
+  paredes : [],
   animando: false,
   pausable: false,
   animaciones : [],
@@ -654,13 +655,65 @@ let subirNivel = () => {
   nivelValor.innerText = nivel;
   popupNivelValor.innerText = nivel;
 
+  //Paredes segun el nivel alcanzado
+
+  if(nivel >= 5 && nivel <=10) {
+    //Limpiando las paredes
+    controles.paredes = []
+    //PAREDES A LA MITAD
+    for(y = 0; y < DIMENSION_CANVAS / 2; y += ANCHO_ALTO_VIBORITA) {
+      //de la izquierda, desde arriba a la mitad
+      controles.paredes.push({x:0,y});
+      //de la derecha, desde la mitad abajo
+      controles.paredes.push({x:DIMENSION_CANVAS - ANCHO_ALTO_VIBORITA,y: y + DIMENSION_CANVAS / 2});
+      //de abajo, desde la izquierda a la mitad
+      controles.paredes.push({y:DIMENSION_CANVAS - ANCHO_ALTO_VIBORITA, x: y});
+      //de arriba, desde la mitad a la derecha
+      controles.paredes.push({y:0,x: y + DIMENSION_CANVAS / 2});
+    }
+    console.log(controles.paredes);
+  }
+
+  if(nivel >= 11 && nivel <=15) {
+    //PAREDES A UN CUARTO
+    //Limpiando las paredes
+    controles.paredes = []
+
+
+  }
+  
+  if(nivel >= 16 && nivel <=20) {
+    //PAREDES DE UNA SI UNA NO
+    //Limpiando las paredes
+    controles.paredes = []
+
+  }
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
   //Reduce el bicho a uno y pone el intervalo al maximo (restaura la velocidad)
   controles.bicho.length = 2;
 
   //Probando si sirve subir la velocidad inicial a cada nivel o hay que hacerlo cada 3 niveles poneleeee
+
+  //Por ahora lo comentamos
+/* 
   intervalo_max -= intervalo_disminucion;
   intervalo_min -= intervalo_disminucion;
   intervalo_disminucion /= 2;
+   */
 
   intervalo = intervalo_max;
 
