@@ -151,6 +151,10 @@ const ELEMENTOS = {
   COMIDA: {
     color: "white"
   },
+  PARED: {
+    color: "orange",
+    img: "./assets/sprites/pared.png"
+  }
 };
 
 //Refs canvas y contexto
@@ -435,7 +439,7 @@ const valorInicial = () => {
       comida: comida,
       jugando: true,
       pausa: false,
-      paredes : [],
+      paredes : [1],
       animando: false,
       pausable: true,
       animaciones : [],
@@ -465,7 +469,7 @@ let controles = {
   comida: { x: 0, y: 250 },
   jugando: false,
   pausa : false,
-  paredes : [],
+  paredes : [1],
   animando: false,
   pausable: false,
   animaciones : [],
@@ -597,6 +601,15 @@ if(controles.bicho[controles.bicho.length - 2].x < x) {
 
 }
 
+let dibujarParedes = () => {
+  let imgPared = document.createElement('img');
+  imgPared.src = './assets/sprites/pared.png';
+  controles.paredes.forEach((pared)=> {
+    ctx.drawImage(imgPared,pared.x,pared.y,10,10);
+  });
+  imgPared = null;
+}
+
 let dibujar = () => {
   //borrar el canvas con clearRect (o sea se borra todo en ese rectangulo)
   ctx.clearRect(0, 0, 500, 500);
@@ -615,6 +628,7 @@ let dibujar = () => {
   }
   const comida = controles.comida;
   dibujarElemento(ELEMENTOS.COMIDA, comida.x, comida.y);
+  dibujarParedes();
 };
 
 let otraComida = () => {
@@ -633,18 +647,32 @@ let choco = () => {
     (nodo, index) => index > 3 && nodo.x === head.x && nodo.y === head.y
   );
 
-  //Si x < 0 se fue para la izquiera de la pantalla
+
+  //ME LLEVO ESTA FUNCIONALIDAD PARA HACER PASAR LA VIBORITA PARA EL OTRO LADO
+ /*  //Si x < 0 se fue para la izquiera de la pantalla
   //Si x >= DIM entonces ya se fue porque su costado izquirdo empieza donde termina el canvas
   let seFueDelCanvas =
     head.x < 0 ||
     head.x >= DIMENSION_CANVAS ||
     head.y < 0 ||
-    head.y >= DIMENSION_CANVAS;
+    head.y >= DIMENSION_CANVAS; */
 
-  return seMordioLaCola || seFueDelCanvas;
+  //Si la cabeza está en la misma posición que cualquiera de las paredes entonces se la morfo  
+  let seComioLaPared = controles.paredes.some((pared)=> head.x === pared.x && head.y === pared.y)
+
+  return seMordioLaCola || seComioLaPared /* seFueDelCanvas */;
 };
 
 let subirNivel = () => {
+
+  //Resetea las direcciones futuras y las posiciones anteriores
+
+  controles.proximaDireccion = [];
+  controles.cuatroPasosAtras = {
+    posiciones: [],
+    direcciones: [],
+  };
+
   //Suma los puntos por nivel multiplicado por el nivel para que a más nivel más puntos y lo muestra en pantalla
   puntaje += puntosPorNivel * nivel;
   puntajeValor.innerText = puntaje;
@@ -657,7 +685,7 @@ let subirNivel = () => {
 
   //Paredes segun el nivel alcanzado
 
-  if(nivel >= 5 && nivel <=10) {
+  if(nivel >= 2 && nivel <=10) {
     //Limpiando las paredes
     controles.paredes = []
     //PAREDES A LA MITAD
@@ -675,9 +703,10 @@ let subirNivel = () => {
   }
 
   if(nivel >= 11 && nivel <=15) {
-    //PAREDES A UN CUARTO
+    //PAREDES SE MUEVEN
     //Limpiando las paredes
     controles.paredes = []
+
 
 
   }
@@ -722,6 +751,8 @@ let subirNivel = () => {
   mostrar(pantallaNivel);
   controles.animando = true;
   controles.pausable = false;
+  turbo = false;
+  botonTurbo.firstElementChild.classList.remove('activo');
   let animacionSubirNivel = new Timer(()=> {
     ocultar(pantallaNivel);
     controles.animando = false;
@@ -947,13 +978,64 @@ let loop = () => {
         nodo.y = controles.bicho[i - 1].y;
       }
     }
+    
+    /* LOOP */
+    
+    //Chequeamos si la viborita se comió la comida (en el primer loop siempre va a dar falso porque siempre aparecen en distintos lugares)
+    let comida = controles.comida;
+    let head = controles.bicho[0]; //Referenciamos la cabeza
+    let niamniam = head.x === comida.x && head.y === comida.y;
+    
+    //Si se pasó del canvas entonces tiene que pasar para el otro lado, según el nivel
+  
+    //NIVEL 1 AL 4
+  
+    if(nivel <=1) {
+    //Si x < 0 se fue para la izquiera de la pantalla
+    //Si x >= DIM entonces ya se fue porque su costado izquirdo empieza donde termina el canvas
+    //En cada caso se reasigna la variable al otro lado de la pantalla
 
-  /* LOOP */
+    if(head.x < 0) {
+      head.x = DIMENSION_CANVAS - ANCHO_ALTO_VIBORITA;
+    }
+    if(head.x >= DIMENSION_CANVAS) {
+      head.x = 0;
+    }
+    if(head.y < 0) {
+      head.y = DIMENSION_CANVAS - ANCHO_ALTO_VIBORITA;
+    }
+    if(head.y >= DIMENSION_CANVAS) {
+      head.y = 0;
+    }
+    
+  }
+  
+  if(nivel >= 2 && nivel < 10) {
+    //Acá se supone que están las paredes cruzadas entonces tiene que aparecer del otro lado PERO EN ESPEJO
+    
+    if(head.x < 0) {
+      head.x = DIMENSION_CANVAS - ANCHO_ALTO_VIBORITA;
+      //hay que acomodar la y para que esté espejada
+      head.y = Math.abs(head.y - DIMENSION_CANVAS) - ANCHO_ALTO_VIBORITA; // La parte de mas arriba está ocupada por una pared por eso se resta un cuadrito
+    }
+    if(head.x >= DIMENSION_CANVAS) {
+      head.x = 0;
+      head.y = Math.abs(head.y - DIMENSION_CANVAS ) - ANCHO_ALTO_VIBORITA;
+    }
+    if(head.y < 0) {
+      head.y = DIMENSION_CANVAS - ANCHO_ALTO_VIBORITA;
+      head.x = Math.abs(head.x - DIMENSION_CANVAS) - ANCHO_ALTO_VIBORITA;
+    }
+    if(head.y >= DIMENSION_CANVAS) {
+      head.y = 0;
+      head.x = Math.abs(head.x - DIMENSION_CANVAS) - ANCHO_ALTO_VIBORITA;
+    }
 
-  //Chequeamos si la viborita se comió la comida (en el primer loop siempre va a dar falso porque siempre aparecen en distintos lugares)
-  let comida = controles.comida;
-  let head = controles.bicho[0]; //Referenciamos la cabeza
-  let niamniam = head.x === comida.x && head.y === comida.y;
+    }
+    
+    
+    
+    
 
   //Ni idea de por qué está en esta posición y no antes de empezar
   //Chequea si chocó y cambia el estado de jugando
@@ -995,6 +1077,7 @@ let loop = () => {
     //reposiciona la comida
     otraComida();
   }
+  
   //Chequea el crecimiento para alargar la viborita
   if (controles.crecimiento > 0) {
     controles.bicho.push(cola); //la cola queda duplicada y se acomoda en el loop
