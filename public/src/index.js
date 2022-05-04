@@ -81,7 +81,7 @@ let intervalo = intervalo_max; //El intervalo ACTUAL en que se llama a la funci�
 let porciones = 0;
 
 //y cada cierto número de comidas (porciones = estomagoLleno) aumentar la velocidad (disminuir intervalo)
-let estomagoLleno = 5;
+let estomagoLleno = 3;
 
 //Valores que salen en la UI---------------------------------------------------------
 
@@ -252,7 +252,7 @@ btnIniciar.onclick = (e) => {
   e.preventDefault();
 
   let posiciones = highScore.map((hs)=> nuevoHighScore(hs.nombre, hs.puntaje)).join('');
-  console.log(posiciones)
+  //console.log(posiciones)
   tabla.innerHTML = posiciones;
   
   iniciar();
@@ -316,7 +316,7 @@ let DESPLAZAMIENTO = ANCHO_ALTO_VIBORITA;
 
 //Una función para randomizar la posición y dirección oficiales ---'oficiales' le mandó
 
-let cualquierLado = (diresNoPermitidas = []) => {
+let cualquierLado = (diresNoPermitidas = [], posNoPermitidas = []) => {
   let todasLasDires = Object.keys(DIRECCION); //Un array con los valores del objeto DIRECCION para poder sacar uno random por el índice
   let diresPermitidas;
   if (diresNoPermitidas.length) {
@@ -344,17 +344,18 @@ let cualquierLado = (diresNoPermitidas = []) => {
       parseInt(Math.random() * (DIMENSION_CANVAS / ANCHO_ALTO_VIBORITA)) *
       DESPLAZAMIENTO,
   };
-  //La comida no puede aparecer donde está el bicho
-  let posNoPermitdas = controles.bicho;
-  if (posNoPermitdas.length) {
+  //La comida no puede aparecer donde está el bicho ni las paredes
+  /* posNoPermitidas.push(...controles.bicho);
+  posNoPermitidas.push(...controles.paredes); */
+  if (posNoPermitidas.length) {
     //Hay lugar?
-    if (posNoPermitdas.length === TOTAL_POSICIONES) {
+    if (posNoPermitidas.length === TOTAL_POSICIONES) {
       //Si no hay lugar (un milagro realmente) sube de nivel (aunque podría bien ganar el juego)
       subirNivel();
     } else {
       //Si hay lugar hay que ver si la posición no se pisa con la cola de la viborita
 
-      let cambiarPosicion = posNoPermitdas.some((estaNo) =>
+      let cambiarPosicion = posNoPermitidas.some((estaNo) =>
         equivalen(posRandom, estaNo)
       );
       while (cambiarPosicion) {
@@ -368,7 +369,7 @@ let cualquierLado = (diresNoPermitidas = []) => {
             parseInt(Math.random() * (DIMENSION_CANVAS / ANCHO_ALTO_VIBORITA)) *
             DESPLAZAMIENTO,
         };
-        cambiarPosicion = posNoPermitdas.some((pnp) =>
+        cambiarPosicion = posNoPermitidas.some((pnp) =>
           equivalen(pnp, posRandom)
         );
       }
@@ -384,13 +385,12 @@ let cualquierLado = (diresNoPermitidas = []) => {
   };
 };
 
-const valorInicial = () => {
-  let bicho = cualquierLado().posicion;
-  let comida = cualquierLado().posicion;
+const getDiresNoPermitidas = () => {
 
-  if (bicho.x !== comida.x || bicho.y !== comida.y) {
-    //calculando las prohibiciones de dirección según la posición del bicho
-    let prohibiciones = [];
+  //calculando las prohibiciones de dirección según la posición del bicho
+  let head = controles.bicho[0];
+
+  let prohibiciones = [];
     //Esto se va a usar para calcular el mínimo a partir de un porcentaje
     let porcentajeMin = 40; //***USAR ESTE SOLO PARA MODIFICAR AMBOS BORDES
     let porcentajeMax = 100 - porcentajeMin;
@@ -401,28 +401,39 @@ const valorInicial = () => {
     //Prohibiciones en x
     //Si el valor es igual o inferior al mínimo, el bicho está en el borde izquierdo
     //Entonces no puede ir hacia la izquierda
-    if (bicho.x <= valorMin) {
+    if (head.x <= valorMin) {
       prohibiciones.push("ArrowLeft", "KeyA");
     }
     //Si el valor es igual o superior al máximo, el bicho está en el borde derecho
     //Entonces no puede ir hacia la derecha
-    if (bicho.x >= valorMax) {
+    if (head.x >= valorMax) {
       prohibiciones.push("ArrowRight", "KeyD");
     }
     //Prohibiciones en y
     //Si el valor es igual o inferior al mínimo, el bicho está en el borde superior
     //Entonces no puede ir hacia arriba
-    if (bicho.y <= valorMin) {
+    if (head.y <= valorMin) {
       prohibiciones.push("ArrowUp", "KeyW");
     }
     //Si el valor es igual o superior al máximo, el bicho está en el borde inferior
     //Entonces no puede ir hacia abajo
-    if (bicho.y >= valorMax) {
+    if (head.y >= valorMax) {
       prohibiciones.push("ArrowDown", "KeyS");
     }
 
-    //Calculando la dirección viable según las prohibiciones generadas
-    let direccion = cualquierLado(prohibiciones).direccion;
+    //Retornando las direcciones prohibidas
+    return prohibiciones;
+
+}
+
+const valorInicial = () => {
+
+  let bicho = cualquierLado([],[...controles.paredes]).posicion;
+  let comida = cualquierLado([],[...controles.bicho, ...controles.paredes]).posicion;
+
+  if (bicho.x !== comida.x || bicho.y !== comida.y) {
+    
+     let direccion = cualquierLado(getDiresNoPermitidas()).direccion;
 
     return {
       direccion: {
@@ -439,7 +450,7 @@ const valorInicial = () => {
       comida: comida,
       jugando: true,
       pausa: false,
-      paredes : [1],
+      paredes : [],
       animando: false,
       pausable: true,
       animaciones : [],
@@ -469,7 +480,7 @@ let controles = {
   comida: { x: 0, y: 250 },
   jugando: false,
   pausa : false,
-  paredes : [1],
+  paredes : [],
   animando: false,
   pausable: false,
   animaciones : [],
@@ -603,7 +614,7 @@ if(controles.bicho[controles.bicho.length - 2].x < x) {
 
 let dibujarParedes = () => {
   let imgPared = document.createElement('img');
-  imgPared.src = './assets/sprites/pared.png';
+  imgPared.src = ELEMENTOS.PARED.img;
   controles.paredes.forEach((pared)=> {
     ctx.drawImage(imgPared,pared.x,pared.y,10,10);
   });
@@ -632,7 +643,7 @@ let dibujar = () => {
 };
 
 let otraComida = () => {
-  let otroLado = cualquierLado().posicion;
+  let otroLado = cualquierLado([],[...controles.bicho, ...controles.paredes]).posicion;
   controles.comida.x = otroLado.x;
   controles.comida.y = otroLado.y;
 };
@@ -665,6 +676,8 @@ let choco = () => {
 
 let subirNivel = () => {
 
+  //EN NINGUN MOMENTO SUBIRNIVEL RESETEA LAS POSICIONES, HAY QUE HACER ESO
+
   //Resetea las direcciones futuras y las posiciones anteriores
 
   controles.proximaDireccion = [];
@@ -672,6 +685,7 @@ let subirNivel = () => {
     posiciones: [],
     direcciones: [],
   };
+  controles.crecimiento = 0;
 
   //Suma los puntos por nivel multiplicado por el nivel para que a más nivel más puntos y lo muestra en pantalla
   puntaje += puntosPorNivel * nivel;
@@ -699,7 +713,6 @@ let subirNivel = () => {
       //de arriba, desde la mitad a la derecha
       controles.paredes.push({y:0,x: y + DIMENSION_CANVAS / 2});
     }
-    console.log(controles.paredes);
   }
 
   if(nivel >= 11 && nivel <=15) {
@@ -734,7 +747,10 @@ let subirNivel = () => {
 
   //Reduce el bicho a uno y pone el intervalo al maximo (restaura la velocidad)
   controles.bicho.length = 2;
-
+  controles.bicho[0] = cualquierLado([],[...controles.paredes]).posicion;
+  controles.bicho[1] = copia(controles.bicho[0]);
+  controles.direccion = cualquierLado(getDiresNoPermitidas()).direccion;
+  console.log('bicho acortado: ', controles.bicho);
   //Probando si sirve subir la velocidad inicial a cada nivel o hay que hacerlo cada 3 niveles poneleeee
 
   //Por ahora lo comentamos
@@ -753,10 +769,12 @@ let subirNivel = () => {
   controles.pausable = false;
   turbo = false;
   botonTurbo.firstElementChild.classList.remove('activo');
+  console.log("bicho antes de la animacion de nivel",controles.bicho);
   let animacionSubirNivel = new Timer(()=> {
     ocultar(pantallaNivel);
     controles.animando = false;
     controles.pausable = true;
+    console.log("bicho después de la animacion de nivel",controles.bicho);
   },3000);
 
   controles.animaciones.push(animacionSubirNivel);
@@ -810,11 +828,13 @@ let retroceder = () => {
   ELEMENTOS.VIBORITA.color = 'red'
   //La posición de choque es una posición ilegal por lo que vuelve inmediatamente a la posición anterior
   controles.bicho = copia(controles.cuatroPasosAtras.posiciones[0]);
+  controles.direccion = copia(controles.cuatroPasosAtras.direcciones[0]);
 
   let pasoUno = new Timer(() => {
     //Checkea que existan las posiciones anteriores y se asignan
     if(controles.cuatroPasosAtras.posiciones[1]){
       controles.bicho = copia(controles.cuatroPasosAtras.posiciones[1]);
+      controles.direccion = copia(controles.cuatroPasosAtras.direcciones[1]);
     }
   },1000);
   
@@ -825,6 +845,7 @@ let retroceder = () => {
   let pasoDos = new Timer(() => {
     if(controles.cuatroPasosAtras.posiciones[2]){
       controles.bicho = copia(controles.cuatroPasosAtras.posiciones[2]);
+      controles.direccion = copia(controles.cuatroPasosAtras.direcciones[2]);
     }
   },2000)
   
@@ -835,6 +856,7 @@ let retroceder = () => {
   let pasoTres = new Timer(() => {
     if(controles.cuatroPasosAtras.posiciones[3]){
       controles.bicho = copia(controles.cuatroPasosAtras.posiciones[3]);
+      controles.direccion = copia(controles.cuatroPasosAtras.direcciones[3]);
     }
   },3000)
 
@@ -846,12 +868,13 @@ let retroceder = () => {
   
   let pasoCuatro = new Timer(() => {
     if(controles.cuatroPasosAtras.posiciones[4]){
+    //Asigna la dirección de la última posición asignada (se asume que las direcciones y las posiciones tienen el mismo largo)
     controles.bicho = copia(controles.cuatroPasosAtras.posiciones[4]);
+    controles.direccion = copia(controles.cuatroPasosAtras.direcciones[4]);
     }
 
-    //Asigna la dirección de la última posición asignada (se asume que las direcciones y las posiciones tienen el mismo largo)
-    //CODIGO COMENTADO PROBANDO SI SIRVE DEJARLE LA ÚLTIMA DIRECCIÓN PRESIONADA//controles.direccion = copia(controles.cuatroPasosAtras.direcciones[controles.cuatroPasosAtras.posiciones.length - 1]);
-
+    //La próxima direccion no tiene sentido, se resetea para que siga con la dirección en la que venía
+    controles.proximaDireccion = [];
 
     //La viborita ya se recuperó
     ELEMENTOS.VIBORITA.color = 'green'
@@ -862,12 +885,16 @@ let retroceder = () => {
     //Las posiciones y direcciones anteriores se resetean a la última posición asignada
     //Esto es porque si se vuelve a chocar enseguida las posiciones anteriores pueden
     //Ser la posición donde choca y perderías otra vida instantáneamente = gameover
+
+    
     controles.cuatroPasosAtras.posiciones[0] = controles.cuatroPasosAtras.posiciones[controles.cuatroPasosAtras.posiciones.length - 1];
+    console.log('posiciones antes de modificar el lenght:', JSON.parse(JSON.stringify(controles.cuatroPasosAtras.posiciones)))
     controles.cuatroPasosAtras.posiciones.length = 1;
     controles.cuatroPasosAtras.direcciones[0] = controles.cuatroPasosAtras.direcciones[controles.cuatroPasosAtras.direcciones.length - 1];
+    console.log('direcciones antes de mod el lenght:', JSON.parse(JSON.stringify(controles.cuatroPasosAtras.direcciones)))
     controles.cuatroPasosAtras.direcciones.length = 1;
-    console.log('posiciones:', controles.cuatroPasosAtras.posiciones)
-    console.log('direcciones:', controles.cuatroPasosAtras.direcciones)
+    console.log('posiciones despues de mod el length:', JSON.parse(JSON.stringify(controles.cuatroPasosAtras.posiciones)))
+    console.log('direcciones después de mod:', JSON.parse(JSON.stringify(controles.cuatroPasosAtras.direcciones)))
   },4000)
 
   /* setTimeout(() => {
@@ -923,7 +950,7 @@ let loop = () => {
       controles.direccion.x = proximaX;
       controles.direccion.y = proximaY;
     }
-    //Una vez asignada o ignorada, se elimina la primera para dejarle el paso
+    //Una vez asignada o ignorada, se elimina la primera para dejarle el paso a las siguientes
       controles.proximaDireccion.shift();
     
     }
@@ -981,10 +1008,8 @@ let loop = () => {
     
     /* LOOP */
     
-    //Chequeamos si la viborita se comió la comida (en el primer loop siempre va a dar falso porque siempre aparecen en distintos lugares)
     let comida = controles.comida;
     let head = controles.bicho[0]; //Referenciamos la cabeza
-    let niamniam = head.x === comida.x && head.y === comida.y;
     
     //Si se pasó del canvas entonces tiene que pasar para el otro lado, según el nivel
   
@@ -994,7 +1019,7 @@ let loop = () => {
     //Si x < 0 se fue para la izquiera de la pantalla
     //Si x >= DIM entonces ya se fue porque su costado izquirdo empieza donde termina el canvas
     //En cada caso se reasigna la variable al otro lado de la pantalla
-
+    
     if(head.x < 0) {
       head.x = DIMENSION_CANVAS - ANCHO_ALTO_VIBORITA;
     }
@@ -1030,13 +1055,15 @@ let loop = () => {
       head.y = 0;
       head.x = Math.abs(head.x - DIMENSION_CANVAS) - ANCHO_ALTO_VIBORITA;
     }
-
-    }
     
-    
-    
-    
-
+  }
+  
+  
+  
+  //Chequeamos si la viborita se comió la comida (en el primer loop siempre va a dar falso porque siempre aparecen en distintos lugares)
+  let niamniam = head.x === comida.x && head.y === comida.y;
+  
+  
   //Ni idea de por qué está en esta posición y no antes de empezar
   //Chequea si chocó y cambia el estado de jugando
   if (choco()) {
@@ -1096,7 +1123,63 @@ let loop = () => {
 
   setTimeout(loop, /* 1000 */ turbo ? intervalo_min : intervalo); //Si está activado el turbo la velocidad es máxima (intervalo_min)
 
+  if(controles.animando) {
+
+    
+    
+    let imgActual = papel.toDataURL('image/png');
+    if(imgAnterior !== imgActual) {
+      console.log('bicho: ', JSON.parse(JSON.stringify(controles.bicho)));
+      console.log('direccion: ', JSON.parse(JSON.stringify(controles.direccion)));
+      console.log('proximadireccion: ', JSON.parse(JSON.stringify(controles.proximaDireccion)));
+      console.log('cuatropasosatras: ', JSON.parse(JSON.stringify(controles.cuatroPasosAtras)));
+      console.log('%c ', `font-size:400px; background:url(${imgActual}) no-repeat;`);
+      imgAnterior = imgActual;
+    }
+
+
+  }
+
+  /* 
+
+  VER QUE ONDA CON ESTO
+  
+  (function(url) {
+    // Create a new `Image` instance
+    var image = new Image();
+  
+    image.onload = function() {
+      // Inside here we already have the dimensions of the loaded image
+      var style = [
+        // Hacky way of forcing image's viewport using `font-size` and `line-height`
+        'font-size: 1px;',
+        'line-height: ' + this.height + 'px;',
+  
+        // Hacky way of forcing a middle/center anchor point for the image
+        'padding: ' + this.height * .5 + 'px ' + this.width * .5 + 'px;',
+  
+        // Set image dimensions
+        'background-size: ' + this.width + 'px ' + this.height + 'px;',
+  
+        // Set image URL
+        'background: url('+ url +');'
+       ].join(' ');
+  
+       // notice the space after %c
+       console.log('%c ', style);
+    };
+  
+    // Actually loads the image
+    image.src = url;
+  })('https://i.cloudup.com/Zqeq2GhGjt-3000x3000.jpeg');
+  
+  */
+
+
+
 };
+
+var imgAnterior;
 
 /* -----------------------UTILIDADES-------------------------- */
 
@@ -1171,7 +1254,7 @@ document.onkeydown = (e) => {
   //no entra si la tecla no es de dirección
   const esDeDireccion = !!DIRECCION[e.code]; //bang bang! estás liquidado ah re
 
-  if (esDeDireccion && controles.jugando && !controles.animando && !controles.pausa ) {
+  if (esDeDireccion && controles.jugando && !controles.pausa ) {
     //ACÁ HAY QUE HACER EL CÓDIGO PARA PUSHEAR A PRÓXIMAS DIRECCIONES
     //La comprobación de que no vuelva sobre sí misma ahora se hace en el loop antes de cada movimiento
     const [x, y] = DIRECCION[e.code];
@@ -1211,7 +1294,6 @@ document.onkeydown = (e) => {
     turbo = true;
     //console.log('esturbo', e.code, 'turbo: ',turbo)
     botonTurbo.firstElementChild.classList.add('activo');
-    papel.classList.add('velocidad');
   }
   
   //Si es escape le pone o saca pausa
@@ -1230,7 +1312,6 @@ document.onkeyup = (e) => {
     turbo = false;
     botonTurbo.firstElementChild.classList.remove('activo');
     //console.log('esturbo', e.code, 'turbo: ',turbo)
-    papel.classList.remove('velocidad');
   }
 
   //Modifica los estilos del teclado virtual para reflejar el estado el teclado físico
@@ -1259,7 +1340,6 @@ document.onkeyup = (e) => {
 
 
 const iniciar = () => {
-  controles = valorInicial();
   vidaValor.innerText = controles.vida;
   container.classList.remove('blur');
   pantallaInicio.classList.add('ocultar');
@@ -1302,6 +1382,7 @@ const perdiste = () => {
 
 window.onload = () => {
   mostrar(pantallaInicio);
+  controles = valorInicial();
   loop()
 };
 

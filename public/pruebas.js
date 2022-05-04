@@ -6,6 +6,12 @@ arr2 = JSON.parse(JSON.stringify(arr));
 
 console.log(arr[0] === arr2[0]); */
 
-let arrLenght = [];
+/* let arrLenght = [];
 
-console.log(!!arrLenght.length);
+console.log(!!arrLenght.length); */
+
+
+let arr = [1,2,3,4,5,6,7,8,9,0];
+console.log('arr antes de modificar lenght: ', arr);
+arr.length = 2;
+console.log('arr despues de modificar lenght: ', arr);
