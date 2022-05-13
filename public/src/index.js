@@ -460,6 +460,7 @@ const valorInicial = () => {
       jugando: true,
       pausa: false,
       paredes: [],
+      perimetro: paredesCompletas(),
       animando: false,
       pausable: true,
       animaciones: [],
@@ -490,6 +491,7 @@ let controles = {
   jugando: false,
   pausa: false,
   paredes: [],
+  perimetro: [],
   animando: false,
   pausable: false,
   animaciones: [],
@@ -692,7 +694,7 @@ let dibujar = () => {
 let otraComida = () => {
   let otroLado = cualquierLado(
     [],
-    [...controles.bicho, ...controles.paredes]
+    [...controles.bicho, ...controles.perimetro]
   ).posicion;
   controles.comida.x = otroLado.x;
   controles.comida.y = otroLado.y;
@@ -742,8 +744,25 @@ let paredesALaMitad = () => {
   }
 };
 
+let paredesCompletas = () => {
+  //PAREDES A LA MITAD
+  let arrPerimetro = [];
+  for (y = 0; y < DIMENSION_CANVAS; y += ANCHO_ALTO_VIBORITA) {
+    //de la izquierda, desde arriba hacia abajo
+    arrPerimetro.push({ x: 0, y });
+    //de la derecha, desde arriba hacia abajo
+    arrPerimetro.push({
+      x: DIMENSION_CANVAS - ANCHO_ALTO_VIBORITA,
+      y
+    });
+    //de abajo y arriba, de izquierda a derecha
+    arrPerimetro.push({ y: DIMENSION_CANVAS - ANCHO_ALTO_VIBORITA, x: y });
+    arrPerimetro.push({ y: 0, x: y});
+  }
+  return arrPerimetro;
+}
+
 let subirNivel = () => {
-  //EN NINGUN MOMENTO SUBIRNIVEL RESETEA LAS POSICIONES, HAY QUE HACER ESO
 
   //Resetea las direcciones futuras y las posiciones anteriores
 
@@ -771,10 +790,8 @@ let subirNivel = () => {
     controles.paredes = [];
     //PAREDES A LA MITAD
     paredesALaMitad();
-    //prueba
-    paredesSeMueven(paredesPorLado());
   }
-
+  
   if (nivel >= 3 && nivel < 4) {
     //PAREDES SE MUEVEN
     //Limpiando las paredes
@@ -782,11 +799,13 @@ let subirNivel = () => {
     paredesALaMitad();
     paredesSeMueven(paredesPorLado());
   }
-
-  if (nivel >= 4 && nivel < 5) {
+  
+  if (nivel >= 4 ) {
     //PAREDES DE UNA SI UNA NO
     //Limpiando las paredes
     controles.paredes = [];
+    paredesALaMitad();
+    paredesSeMueven(paredesPorLado());
   }
 
   //Reduce el bicho a uno y pone el intervalo al maximo (restaura la velocidad)
